@@ -1,0 +1,5 @@
+project(${CMAKE_SYSTEM_PROCESSOR}_${MCU} VERSION 1.0
+    DESCRIPTION "eer ${CMAKE_SYSTEM_PROCESSOR}${MCU} HAL"
+    LANGUAGES C)
+
+include(../hal.cmake)

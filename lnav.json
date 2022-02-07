@@ -1,0 +1,69 @@
+{
+    "ereact_log" : {
+        "title" : "eeReact Log Format",
+        "description" : "Log format used in the documentation example.",
+        "url" : "http://schema.vc/eer/log-format.html",
+        "regex" : {
+            "basic" : {
+                "pattern" : "^(?<timestamp>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3})\t(?<level>\\w+)\t(?<step>\\d+)\t(?<instance>\\w+) / (?<component>\\w+).(?<method>\\w+)$"
+            },
+            "hal" : {
+                "pattern" : "^(?<timestamp>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3})\t(?<level>\\w+)\t(?<step>\\d+)\t\\(0x(?<line_ptr>.*):(?<depth>\\w+)\\) (?<method>.*)\\((?<argument>.*)\\)$"
+            },
+            "hal_return" : {
+                "pattern" : "^(?<timestamp>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3})\t(?<level>\\w+)\t(?<step>\\d+)\t\\(0x(?<line_ptr>.*):(?<depth>\\w+)\\) (?<method>.*)\\((?<argument>.*)\\)=(?<return>.*)$"
+            },
+            "debug" : {
+                "pattern" : "^(?<timestamp>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3})\t(?<level>\\w+)\t(?<step>\\d+)\t\\(component/(?<component_a>\\w+)/(?<component>\\w+)\\.c:(?<line>\\d+)\\) (?<body>.*)"
+            }
+        },
+        "level-field" : "level",
+        "level" : {
+            "info" : "INFO",
+            "error" : "ERROR",
+            "warning" : "WARNING"
+        },
+        "value" : {
+            "step" : {
+                "kind" : "integer"
+            },
+            "depth" : {
+                "kind" : "integer"
+            },
+            "line_ptr" : {
+                "kind" : "string"
+            },
+            "line" : {
+                "kind" : "integer"
+            },
+            "argument" : {
+                "kind" : "string"
+            },
+            "return" : {
+                "kind" : "string"
+            },
+            "component" : {
+                "kind" : "string",
+                "identifier" : true
+            },
+            "method" : {
+                "kind" : "string",
+                "identifier" : true
+            },
+            "instance" : {
+                "kind" : "string",
+                "identifier" : true
+            }
+        },
+        "sample" : [
+            {
+                "line": "2021-10-31 00:11:28.662\tINFO\t1\tClock / clk.willMount"
+            },
+            {
+                "line": "2022-02-07 22:53:33.139\tVERBOSE\t0\tsensor / IO.release"
+            }, {
+                "line": "2022-02-07 22:53:33.139\tVERBOSE\t0\t(0x1067ea06f:6) gpio_on(sensor_0)"
+            }
+        ]
+    }
+}

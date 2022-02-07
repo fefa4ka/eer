@@ -10,11 +10,13 @@
     if (!(test)) {                                                             \
         log_error(message, ##__VA_ARGS__);                                     \
         return ERROR_UNKNOWN;                                                  \
+    } else {                                                                   \
+        log_ok(message, ##__VA_ARGS__);                                      \
     }
 
 #define test_define_(test_method)                                              \
     eer_result_t test_method();                                                \
-    void        *__##test_method(void *ptr) { return (void *)test_method(); }
+    void *       __##test_method(void *ptr) { return (void *)test_method(); }
 
 #define test_define(...) EVAL(MAP(test_define_, __VA_ARGS__))
 
@@ -28,7 +30,7 @@
 
 #define test_wait_(test_method)                                                \
     pthread_join(test_method##_thread, (void **)&r);                           \
-    if (r != 0) {                                                            \
+    if (r != 0) {                                                              \
         log_error(#test_method " test failed");                                \
     }
 #define test_wait(...) EVAL(MAP(test_wait_, __VA_ARGS__))
@@ -48,7 +50,7 @@
 #define test_program(before, after, ...)                                       \
     eer_stop_header test_define(__VA_ARGS__);                                  \
     void            program();                                                 \
-    void           *__program(void *ptr)                                       \
+    void *          __program(void *ptr)                                       \
     {                                                                          \
         program();                                                             \
         return NULL;                                                           \

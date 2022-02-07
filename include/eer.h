@@ -60,8 +60,8 @@
                                           Type##_state_t *state)
 #endif
 
-#define eer_lifecycle_prepare(Type, instance, stage) hw_isr_disable()
-#define eer_lifecycle_finish(Type, instance, stage)  hw_isr_enable()
+#define eer_lifecycle_prepare(Type, instance, stage) eer_hw_isr_disable()
+#define eer_lifecycle_finish(Type, instance, stage)  eer_hw_isr_enable()
 
 #define eer_lifecycle(Type, stage)                                             \
     eer_lifecycle_header(Type, stage);                                         \
@@ -144,6 +144,56 @@
 #define eer_did_update(Type)    eer_lifecycle(Type, did_update)
 #define eer_did_unmount(Type)   eer_lifecycle(Type, did_unmount)
 
+/* Skip */
+#define eer_lifecycle_skip(Type, stage)                                        \
+    void Type##_##stage(void *instance) {}
+
+#define eer_updatecycle_skip(Type, stage, return_type)                         \
+    return_type Type##_##stage(void *instance, void *next_props_ptr) {}
+
+
+#define eer_will_mount_skip(Type)                                              \
+    void Type##_will_mount(void *instance, void *next_props_ptr)               \
+    {                                                                          \
+        eer_self(Type, instance);                                              \
+        if (next_props_ptr) {                                                  \
+            eer_selfnext(Type, instance);                                      \
+            if (&self->props != next_props)                                    \
+                self->props = *next_props;                                     \
+        }                                                                      \
+    }
+#define eer_will_update_skip(Type)                                             \
+    void Type##_will_update(void *instance, void *next_props_ptr)              \
+    {                                                                          \
+        eer_self(Type, instance);                                              \
+        if (next_props_ptr) {                                                  \
+            eer_selfnext(Type, instance);                                      \
+            if (&self->props != next_props)                                    \
+                self->props = *next_props;                                     \
+        }                                                                      \
+    }
+
+#define eer_release_skip(Type) eer_lifecycle_skip(Type, release)
+#define eer_should_update_skip(Type)                                           \
+    bool Type##_should_update(void *instance, void *next_props_ptr) { return true; }
+#define eer_did_mount_skip(Type)   eer_lifecycle_skip(Type, did_mount)
+#define eer_did_update_skip(Type)  eer_lifecycle_skip(Type, did_update)
+#define eer_did_unmount_skip(Type) eer_lifecycle_skip(Type, did_unmount)
+
+/* Hooks */
+#define eer_lifecycle_hook(Type, stage, callback)                              \
+    void Type##_##stage(void *instance)                                        \
+    {                                                                          \
+        eer_self(Type, instance);                                              \
+        if (self->callback)                                                    \
+            self->callback(self);                                              \
+    }
+
+#define eer_release_hook(Type)     eer_lifecycle_hook(Type, release)
+#define eer_did_mount_hook(Type)   eer_lifecycle_hook(Type, did_mount)
+#define eer_did_update_hook(Type)  eer_lifecycle_hook(Type, did_update)
+#define eer_did_unmount_hook(Type) eer_lifecycle_hook(Type, did_unmount)
+
 #define eer_withprops(Type, instance_name, instance_props)                     \
     Type##_t instance_name = {                                                 \
         .instance = eer_define_component(Type, instance_name),                 \
@@ -168,16 +218,14 @@
 #define _(...) __VA_ARGS__
 
 #define eer_apply(Type, name, propsValue)                                      \
-    {                                                                          \
-        if (name.instance.stage == STAGE_RELEASED                              \
-            || name.instance.stage == STAGE_DEFINED) {                         \
-            eer_lifecycle_prepare(Type, &name, next_props);                    \
-            Type##_props_t next_props = propsValue;                            \
-            eer_lifecycle_finish(Type, &name, next_props);                     \
-            eer_staging(&name.instance, &next_props);                          \
-        } else {                                                               \
-            eer_staging(&name.instance, 0);                                    \
-        }                                                                      \
+    if (name.instance.stage == STAGE_RELEASED                                  \
+        || name.instance.stage == STAGE_DEFINED) {                             \
+        eer_lifecycle_prepare(Type, &name, next_props);                        \
+        Type##_props_t next_props = propsValue;                                \
+        eer_lifecycle_finish(Type, &name, next_props);                         \
+        eer_staging(&name.instance, &next_props);                              \
+    } else {                                                                   \
+        eer_staging(&name.instance, 0);                                        \
     }
 #define eer_react(Type, name, propsValue)                                      \
     {                                                                          \
@@ -193,7 +241,9 @@
 #define eer_use(...) EVAL(MAP(__eer_use, __VA_ARGS__)) true
 
 #define __eer_loop(x) eer_staging(&x.instance, 0) &&
-#define eer_loop(...) while (EVAL(MAP(__eer_loop, __VA_ARGS__)) true)
+#define eer_loop(...)                                                          \
+    IF_ELSE(HAS_ARGS(__VA_ARGS__))                                             \
+    (while (EVAL(MAP(__eer_loop, __VA_ARGS__)) true))(while (true))
 
 #ifdef PROFILING
     #include "profiler.h"
@@ -237,5 +287,5 @@ bool eer_reacting(eer_t *instance, void *next_props);
     #include <dbg.h>
 #endif
 #ifdef HAL_atmega328p
-    #include <atmega328p.h>
+    #include <avr.h>
 #endif

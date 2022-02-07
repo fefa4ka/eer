@@ -1,5 +1,7 @@
 #include "lr.h"
+#ifdef PROFILING
 #include <profiler.h>
+#endif
 
 uint16_t lr_length_limited_owned(struct linked_ring *lr, uint16_t limit,
                                  lr_owner_t owner)

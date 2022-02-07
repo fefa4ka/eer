@@ -20,7 +20,7 @@ add_subdirectory(${EER_HAL_PATH})
 add_library(eer STATIC src/eer.c)
 target_include_directories(eer PUBLIC include ${EER_HAL_PATH} ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(eer INTERFACE include)
-target_link_libraries(eer ${EER_HAL_LIB})
+target_link_libraries(eer)
 
 if(${PROFILING})
     add_library(profiling STATIC src/profiler.c)

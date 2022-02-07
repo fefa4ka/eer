@@ -10,7 +10,7 @@ typedef struct eer_isr_handler {
     void (*disable)(void *isr_args);
 } eer_isr_handler_t;
 
-typedef struct eer_io_handler {
+typedef struct eer_gpio_handler {
     void (*in)(void *pin);
     void (*out)(void *pin);
     void (*on)(void *pin);
@@ -21,7 +21,7 @@ typedef struct eer_io_handler {
     bool (*get)(void *pin);
 
     eer_isr_handler_t isr;
-} eer_io_handler_t;
+} eer_gpio_handler_t;
 
 enum eer_communication_mode {
     COMMUNICATION_MODE_DISABLED,
@@ -77,10 +77,10 @@ enum eer_timer_event {
     TIMER_EVENT_CAPTURE
 };
 
-struct eer_timer_isr {
+typedef struct eer_timer_isr {
     uint16_t             ticks;
     enum eer_timer_event event : 3;
-};
+} eer_timer_isr_t;
 
 typedef struct eer_timer_handler {
     void (*init)(void *config);
@@ -89,17 +89,6 @@ typedef struct eer_timer_handler {
 
     eer_isr_handler_t isr;
 } eer_timer_handler_t;
-
-typedef struct {
-    eer_isr_handler_t    isr;
-    eer_io_handler_t     io;
-    eer_adc_handler_t    adc;
-    eer_serial_handler_t uart;
-    eer_serial_handler_t spi;
-    eer_timer_handler_t  timer;
-} eer_hal;
-
-extern eer_hal eer_hw;
 
 // Bit manipulation helpers
 #define bit_value(data, bit) ((data >> bit) & 1) // Return Data.Y value

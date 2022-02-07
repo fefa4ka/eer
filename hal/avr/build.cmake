@@ -11,7 +11,7 @@ add_custom_target(${PROJECT_NAME}.lst
     DEPENDS ${PROJECT_NAME})
 
 add_custom_target(${PROJECT_NAME}.mcu_usage
-    ALL ${AVR_SIZE_TOOL} --format=avr --mcu=${CMAKE_SYSTEM_NAME}${CMAKE_SYSTEM_PROCESSOR} ${PROJECT_NAME}.elf
+    ALL ${AVR_SIZE_TOOL} --format=avr --mcu=${MCU} ${PROJECT_NAME}.elf
     DEPENDS ${PROJECT_NAME})
 
 ## Strip binary for upload

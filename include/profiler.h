@@ -8,8 +8,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "log.h"
 #include "hal.h"
+#include "log.h"
 
 struct eer_hal_calls {
     uint64_t gpio_in;
@@ -123,7 +123,7 @@ struct eer_hal_calls {
         .should_update = Type##_should_update,                                 \
         .will_update = Type##_will_update, .release = Type##_release,          \
         .did_mount = Type##_did_mount, .did_update = Type##_did_update,        \
-        .name = #Type " / " #instance_name                                     \
+        .name = #instance_name " / " #Type                                     \
     }
 
 #undef eer_lifecycle_prepare
@@ -141,7 +141,8 @@ struct eer_hal_calls {
     signal(SIGINT, eer_signal_handler);                                        \
     log_init();                                                                \
     vcd_init();                                                                \
-    while (EVAL(MAP(__eer_loop, __VA_ARGS__)) eer_step())
+    while (IF_ELSE(HAS_ARGS(__VA_ARGS__))(                                     \
+        EVAL(MAP(__eer_loop, __VA_ARGS__)))() eer_step())
 
 extern struct hash_table     eer_scope;
 extern uint64_t              eer_steps;
@@ -156,3 +157,4 @@ bool         eer_dump_usage();
 uint64_t     eer_step();
 char *       eer_timer_formatted_time(void);
 unsigned int eer_hash_component(char *word);
+void (*eer_pause)();

@@ -4,7 +4,7 @@ bool eer_staging(eer_t *instance, void *next_props)
 {
     if (instance->stage == STAGE_RELEASED) {
         if(!instance->should_update(instance, next_props))
-            return false;
+            return true;
 
         instance->stage = STAGE_PREPARED;
         instance->will_update(instance, next_props);

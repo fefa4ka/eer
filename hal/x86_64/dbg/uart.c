@@ -33,7 +33,7 @@ static inline bool uart_is_transmit_ready()
     return true;
 }
 
-static inline void uart_transmit(unsigned char data)
+static inline void uart_transmit(uint8_t data)
 {
     eer_profiler_count(uart_transmit);
     putchar(data);

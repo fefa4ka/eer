@@ -15,6 +15,9 @@
             },
             "debug" : {
                 "pattern" : "^(?<timestamp>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3})\t(?<level>\\w+)\t(?<step>\\d+)\t\\(component/(?<component_a>\\w+)/(?<component>\\w+)\\.c:(?<line>\\d+)\\) (?<body>.*)"
+            },
+            "message" : {
+                "pattern" : "^(?<timestamp>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3})\tOK\t(?<step>\\d+)\t(?<message>.*)$"
             }
         },
         "level-field" : "level",
@@ -35,6 +38,9 @@
             },
             "line" : {
                 "kind" : "integer"
+            },
+            "message" : {
+                "kind" : "string"
             },
             "argument" : {
                 "kind" : "string"
@@ -62,7 +68,9 @@
             {
                 "line": "2022-02-07 22:53:33.139\tVERBOSE\t0\tsensor / IO.release"
             }, {
-                "line": "2022-02-07 22:53:33.139\tVERBOSE\t0\t(0x1067ea06f:6) gpio_on(sensor_0)"
+            "line": "2022-02-07 22:53:33.139\tVERBOSE\t0\t(0x1067ea06f:6) gpio_on(sensor_0)"
+            }, {
+            "line": "2022-02-07 22:53:33.139\tOK\t0\tOk la eblaa"
             }
         ]
     }

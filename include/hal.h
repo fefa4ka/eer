@@ -4,6 +4,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+
+typedef struct eer_sys_handler {
+    struct {
+        void (*set)(void *unit);
+        uint32_t (*get)(void *unit);
+    } clock;
+} eer_sys_handler_t;
+
 typedef struct eer_isr_handler {
     bool (*is_available)(void *trigger);
     void *(*enable)(void *isr_args, eer_callback_t *);
@@ -43,11 +51,13 @@ enum eer_pin_mode {
     PIN_MODE_OFF,
     PIN_MODE_OUTPUT,
     PIN_MODE_INPUT,
-    PIN_MODE_PULLUP
+    PIN_MODE_PULLUP,
+    PIN_MODE_PULLDOWN,
+    PIN_MODE_PUSHPULL
 };
 
 struct eer_io_isr {
-    void             *pin;
+    void *            pin;
     enum eer_io_event event : 3;
 };
 
@@ -95,4 +105,3 @@ typedef struct eer_timer_handler {
 #define bit_set(data, bit)   data |= (1 << bit)  // Set Data.Y to 1
 #define bit_flip(data, bit)  data ^= (1 << bit)  // Set Data.Y to ! Data.Y
 #define bit_clear(data, bit) data &= ~(1 << bit) // Clear Data.Y to 0
-

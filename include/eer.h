@@ -289,3 +289,6 @@ bool eer_reacting(eer_t *instance, void *next_props);
 #ifdef HAL_atmega328p
     #include <avr.h>
 #endif
+#ifdef HAL_ch573
+    #include <ch573.h>
+#endif

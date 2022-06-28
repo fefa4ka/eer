@@ -4,13 +4,13 @@
 
 
 typedef struct eer_pin {
-    uint8_t number;
+    uint16_t number;
     char *        name;
     char          index;
     struct {
-        uint8_t ddr;
-        uint8_t port;
-        uint8_t pin;
+        uint16_t ddr;
+        uint16_t port;
+        uint16_t pin;
     } port;
 } eer_pin_t;
 

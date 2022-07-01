@@ -37,4 +37,4 @@
 #define result_t eer_result_t
 
 #define hw(system) eer_hw_##system
-#define hw_pin     eer_hw_pin
+#define hw_pin(port, pin) eer_hw_pin(port, pin)

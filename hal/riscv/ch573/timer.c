@@ -68,7 +68,10 @@ struct __attribute__((packed)) SysTick {
 
 static void timer_init(void *config) {
     /* Enable system counter STK */
-    SysTick->CTLR.b.STE = true;
+    SysTick->CTLR.w
+        = SysTick_CTRL_RELOAD_Msk | SysTick_CTRL_CLKSOURCE_Msk
+          | SysTick_CTRL_TICKINT_Msk
+          | SysTick_CTRL_ENABLE_Msk; /* Enable SysTick IRQ and SysTick Timer */
 }
 
 static uint64_t timer_get() { return SysTick->CNT; }
@@ -130,7 +133,7 @@ static void timer_off()
     __nop();
 }
 
-static uint16_t timer_ticks_to_us(uint16_t ticks) { return ticks >> 1; }
+static uint16_t timer_ticks_to_us(uint16_t ticks) { return ticks >> 9; }
 
 eer_timer_handler_t eer_hw_timer = {.init        = timer_init,
                                     .get         = timer_get,

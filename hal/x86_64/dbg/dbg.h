@@ -3,7 +3,6 @@
 #include <hal.h>
 #include "log.h"
 #include "vcd.h"
-#include <version.h>
 #ifdef PROFILING
     #include "profiler.h"
 #endif

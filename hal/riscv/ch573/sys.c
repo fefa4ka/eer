@@ -129,7 +129,8 @@ static uint32_t sys_get_clock(void *unit)
 }
 
 eer_sys_handler_t eer_hw_sys = {
-    .clock = { .set = sys_set_clock,
+    .clock = {
+        .set = sys_set_clock,
         .get = sys_get_clock,
     },
 };

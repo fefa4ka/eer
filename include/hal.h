@@ -31,6 +31,15 @@ typedef struct eer_gpio_handler {
     eer_isr_handler_t isr;
 } eer_gpio_handler_t;
 
+enum eer_sys_mode {
+    SYS_MODE_BOOT,
+    SYS_MODE_READY,
+    SYS_MODE_SLEEP,
+    SYS_MODE_WAKE,
+    SYS_MODE_REBOOT,
+    SYS_MODE_SHUTDOWN
+};
+
 enum eer_communication_mode {
     COMMUNICATION_MODE_DISABLED,
     COMMUNICATION_MODE_TRANSMITTER,

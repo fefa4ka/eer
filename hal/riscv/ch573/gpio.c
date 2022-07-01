@@ -28,14 +28,13 @@ static void gpio_out(void *pin)
     switch (Pin->mode) {
     case PIN_MODE_PUSHPULL:
         bit_set(*Pin->port.drv, Pin->number);
-        bit_set(*Pin->port.dir, Pin->number);
         break;
 
     default:
         bit_clear(*Pin->port.drv, Pin->number);
-        bit_set(*Pin->port.dir, Pin->number);
         break;
     }
+    bit_set(*Pin->port.dir, Pin->number);
 }
 
 static void gpio_on(void *pin)
@@ -63,7 +62,13 @@ static bool gpio_get(void *pin)
 {
     eer_pin_t *Pin = (eer_pin_t *)pin;
 
-    return *(Pin->port.pin) & (1 << (Pin->number));
+    return (bool)((*(Pin->port.pin) & (1 << (Pin->number))) >> (Pin->number));
+}
+
+static void gpio_pullup(void *pin) {
+    eer_pin_t *Pin = (eer_pin_t *)pin;
+    Pin->mode = PIN_MODE_PULLUP;
+    gpio_in(pin);
 }
 
 eer_gpio_handler_t eer_hw_gpio = {
@@ -73,6 +78,7 @@ eer_gpio_handler_t eer_hw_gpio = {
     .off  = gpio_off,
     .flip = gpio_flip,
     .get  = gpio_get,
+    .pullup = gpio_pullup,
     /* FIXME: implemet interrupts */
     //                 .isr = {
     //                    .enable = gpio_isr_enable,

@@ -2,7 +2,6 @@ project(${CMAKE_SYSTEM_PROCESSOR}_${HAL} VERSION 1.0
     DESCRIPTION "eer ${CMAKE_SYSTEM_PROCESSOR}${HAL} HAL"
     LANGUAGES C)
 
-configure_file(${EER_LIB_PATH}/include/version.h.in version.h)
 
 function(add_hal_library system)
     set(HAL_SYSTEM ${CMAKE_SYSTEM_PROCESSOR}_${HAL}_${system})

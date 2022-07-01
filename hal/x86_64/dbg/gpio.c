@@ -13,7 +13,6 @@
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
-#include <version.h>
 #ifdef PROFILING
     #include "profiler.h"
 #endif

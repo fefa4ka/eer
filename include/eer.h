@@ -2,7 +2,6 @@
 
 #include "magic.h"
 #include <stdbool.h>
-#include <version.h>
 
 /*
  *        ┌───────┐  willMount   ┌────────┐   shouldUpdate?   ┌────────┐

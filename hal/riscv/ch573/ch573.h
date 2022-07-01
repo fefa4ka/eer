@@ -99,6 +99,9 @@ typedef enum IRQn {
     #include "gpio.h"
 extern eer_gpio_handler_t eer_hw_gpio;
 #endif
+#ifdef HAL_sys
+extern eer_sys_handler_t eer_hw_sys;
+#endif
 #ifdef HAL_timer
 extern eer_timer_handler_t eer_hw_timer;
 #endif

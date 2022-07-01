@@ -1,5 +1,4 @@
 # executables in use
-##########################################################################
 set(CMAKE_CROSSTOOL riscv-none-embed)
 find_program(RISCV_CC ${CMAKE_CROSSTOOL}-gcc REQUIRED)
 find_program(RISCV_CXX ${CMAKE_CROSSTOOL}-g++ REQUIRED)
@@ -9,9 +8,7 @@ find_program(RISCV_SIZE_TOOL ${CMAKE_CROSSTOOL}-size REQUIRED)
 find_program(RISCV_STRIP ${CMAKE_CROSSTOOL}-strip REQUIRED)
 find_program(RISCV_NM ${CMAKE_CROSSTOOL}-nm REQUIRED)
 
-##########################################################################
 # toolchain starts with defining mandatory variables
-##########################################################################
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR riscv)
 set(CMAKE_C_COMPILER ${RISCV_CC})
@@ -43,11 +40,10 @@ set(MCU ch573 CACHE STRING "RISCV family MCU")
 set(PROG_TYPE openocd CACHE STRING "RISCV programmer")
 set(HAL ${MCU})
 
-
 set(CMAKE_EXE_LINKER_FLAGS "-nostartfiles -Xlinker --gc-sections -Xlinker --print-memory-usage")
 
 add_compile_options(
-    -std=gnu99 # C99 standard
+    -std=gnu99
     -march=rv32imac
     -mabi=ilp32
     -mcmodel=medany

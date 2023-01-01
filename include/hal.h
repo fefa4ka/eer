@@ -105,9 +105,18 @@ typedef struct eer_timer_handler {
     void (*init)(void *config);
     uint16_t (*get)();
     uint16_t (*ticks_to_us)(uint16_t ticks);
+    uint16_t (*us_to_ticks)(uint16_t us);
 
     eer_isr_handler_t isr;
 } eer_timer_handler_t;
+
+
+typedef struct eer_ble_handler {
+    void(*init)(void *config);
+} eer_ble_handler_t;
+
+
+
 
 // Bit manipulation helpers
 #define bit_value(data, bit) ((data >> bit) & 1) // Return Data.Y value

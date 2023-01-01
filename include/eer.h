@@ -236,8 +236,8 @@
     x.instance.stage = STAGE_UNMOUNTED;                                        \
     eer_staging(&x.instance, 0);
 
-#define __eer_use(x) eer_staging(&(x).instance, 0) &&
-#define eer_use(...) EVAL(MAP(__eer_use, __VA_ARGS__)) true
+#define __eer_use(x) eer_staging(&(x.instance), 0);
+#define eer_use(...) EVAL(MAP(__eer_use, __VA_ARGS__))
 
 #define __eer_loop(x) eer_staging(&x.instance, 0) &&
 #define eer_loop(...)                                                          \

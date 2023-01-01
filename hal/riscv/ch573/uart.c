@@ -1,8 +1,10 @@
 #include "ch573.h"
 #include "gpio.h"
 
-#define UART_RX_PIN_NUMBER 8
-#define UART_TX_PIN_NUMBER 9
+#define UART_RX_PIN_NUMBER 4
+#define UART_RXD_PIN_NUMBER 15
+#define UART_TX_PIN_NUMBER 7
+#define UART_TXD_PIN_NUMBER 14
 
 /* UART0 */
 #define R8_UART0_RBR                                                           \
@@ -60,7 +62,7 @@
 #define RB_IER_RESET                                                           \
     0x80 // WZ, UART software reset control, high action, auto clear
 
-#define uart_baudrate(baudrate) ((sys_clock() / 8UL / baudrate) + 5) / 10
+//#define uart_baudrate(baudrate) ((sys_clock() / 8UL / baudrate) + 5) / 10
 
 static uint32_t sys_clock(void)
 {
@@ -76,6 +78,15 @@ static uint32_t sys_clock(void)
     }
 }
 
+static uint16_t uart_baudrate(uint32_t baudrate)
+{
+    uint32_t x;
+
+    x = 10 * sys_clock() / 8 / baudrate;
+    x = ( x + 5 ) / 10;
+
+    return (uint16_t)x;
+}
 
 static void uart_init(void *baudrate)
 {
@@ -83,15 +94,27 @@ static void uart_init(void *baudrate)
 
     /* Configure serial port 1: First configure the IO port mode, then configure
      * the serial port */
-    bit_set(R32_PB_OUT, UART_RX_PIN_NUMBER);
-    /* TXD-configure push-pull output, pay attention to let the IO port
-       output high level first */
-    bit_clear(R32_PA_PD_DRV, UART_TX_PIN_NUMBER);
-    bit_set(R32_PA_DIR, UART_TX_PIN_NUMBER);
+    bit_set(R32_PB_OUT, UART_TX_PIN_NUMBER);
+
 
     /* RXD —  Configuration pull-up input */
-    bit_clear(R32_PA_PD_DRV, UART_RX_PIN_NUMBER);
-    bit_set(R32_PA_DIR, UART_RX_PIN_NUMBER);
+    bit_clear(R32_PB_PD_DRV, UART_RX_PIN_NUMBER);
+    bit_set(R32_PB_PU, UART_RX_PIN_NUMBER);
+    bit_clear(R32_PB_DIR, UART_RX_PIN_NUMBER);
+
+    /* TXD-configure push-pull output, pay attention to let the IO port
+       output high level first */
+    bit_clear(R32_PB_PD_DRV, UART_TX_PIN_NUMBER);
+    bit_set(R32_PB_DIR, UART_TX_PIN_NUMBER);
+
+    bit_clear(R32_PA_PD_DRV, UART_RXD_PIN_NUMBER);
+    bit_set(R32_PA_DIR, UART_RXD_PIN_NUMBER);
+
+    bit_clear(R32_PA_PD_DRV, UART_TXD_PIN_NUMBER);
+    bit_set(R32_PA_DIR, UART_TXD_PIN_NUMBER);
+
+    bit_set(R32_PA_OUT, UART_RXD_PIN_NUMBER);
+    bit_flip(R32_PA_OUT, UART_TXD_PIN_NUMBER);
 
     /* Set baud rate */
     R16_UART0_DL = baud;

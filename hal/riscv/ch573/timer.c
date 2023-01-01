@@ -104,6 +104,7 @@ static void timer_compare_set(uint64_t ticks, eer_callback_t *callback)
           | SysTick_CTRL_ENABLE_Msk; /* Enable SysTick IRQ and SysTick Timer */
 
     /*
+     * TODO: Test optimization
     SysTick->CTLR.b.STE =
     SysTick->CTLR.b.STIE =
     SysTick->CTLR.b.STCLK =

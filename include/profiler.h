@@ -38,6 +38,7 @@ struct eer_hal_calls {
     uint64_t timer_compare_set;
     uint64_t timer_off;
     uint64_t timer_ticks_to_us;
+    uint64_t timer_us_to_ticks;
 
     uint64_t lr_seek;
     uint64_t lr_write;
@@ -128,13 +129,13 @@ struct eer_hal_calls {
 
 #undef eer_lifecycle_prepare
 #define eer_lifecycle_prepare(Type, instance, stage)                           \
-    hw_isr_disable();                                                          \
+    eer_hw_isr_disable();                                                          \
     eer_profiler_tick((Type##_t *)instance, stage)
 
 #undef eer_lifecycle_finish
 #define eer_lifecycle_finish(Type, instance, stage)                            \
     eer_profiler_tock((Type##_t *)instance, stage);                            \
-    hw_isr_enable()
+    eer_hw_isr_enable()
 
 #undef eer_loop
 #define eer_loop(...)                                                          \
@@ -157,4 +158,3 @@ bool         eer_dump_usage();
 uint64_t     eer_step();
 char *       eer_timer_formatted_time(void);
 unsigned int eer_hash_component(char *word);
-void (*eer_pause)();

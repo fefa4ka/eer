@@ -108,6 +108,9 @@ extern eer_timer_handler_t eer_hw_timer;
 #ifdef HAL_uart
 extern eer_serial_handler_t eer_hw_uart;
 #endif
+#ifdef HAL_ble
+extern eer_ble_handler_t eer_hw_ble;
+#endif
 
 
 extern uint32_t irq_status;

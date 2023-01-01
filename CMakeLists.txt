@@ -23,6 +23,7 @@ target_include_directories(eer INTERFACE include)
 target_link_libraries(eer)
 
 if(${PROFILING})
+    message("Profiling enabled")
     add_library(profiling STATIC src/profiler.c)
     target_include_directories(profiling PUBLIC include ${EER_HAL_PATH} ${CMAKE_CURRENT_BINARY_DIR})
     target_link_libraries(eer profiling)

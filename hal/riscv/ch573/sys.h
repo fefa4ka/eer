@@ -35,3 +35,6 @@ enum ch573_clock_source
   CLK_SOURCE_PLL_20MHz = (0x40|24),
   CLK_SOURCE_PLL_15MHz = (0x40|0),
 };
+
+typedef enum ch573_clock_source eer_sys_clk_source_t;
+typedef enum ch573_clock_source eer_sys_rtc_source_t;

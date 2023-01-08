@@ -2,14 +2,15 @@
 
 #include "magic.h"
 #include <stdbool.h>
+#include <stdint.h>
 
 /*
- *        ┌───────┐  willMount   ┌────────┐   shouldUpdate?   ┌────────┐
+ *        ┌───────┐  will_mount  ┌────────┐   should_update?  ┌────────┐
  *        │DEFINED├─────────────►│RELEASED├──────────────────►│PREPARED├──┐
- *        └───────┘  release     └────────┘   willUpdate      └────────┘  │
- *                   didMount         ▲                        release    │
+ *        └───────┘  release     └────────┘   will_update     └────────┘  │
+ *                   did_mount        ▲                        release    │
  *                                    ├───────────────────────────────────┘
- *                                    ▼                        didUpdate
+ *                                    ▼                        did_update
  *                               ┌─────────┐
  *                               │UNMOUNTED│
  *                               └─────────┘
@@ -31,7 +32,7 @@
 
 #define eer_define_component(Type, name)                                       \
     {                                                                          \
-        .stage = STAGE_DEFINED, .will_mount = Type##_will_mount,               \
+        .stage = {STAGE_DEFINED}, .will_mount = Type##_will_mount,             \
         .should_update = Type##_should_update,                                 \
         .will_update = Type##_will_update, .release = Type##_release,          \
         .did_mount = Type##_did_mount, .did_update = Type##_did_update,        \
@@ -43,6 +44,9 @@
     (((Type##_t *)instance)->props.attribute)
 #define eer_state(Type, instance, attribute)                                   \
     (((Type##_t *)instance)->state.attribute)
+#define eer_from_props(Type, props) (Type##_t *)(props - sizeof(eer_t))
+#define eer_from_state(Type, props)                                            \
+    eer_from_props(state - sizeof(Type##_props_t))
 
 #define eer_instance_state(Type, instance)                                     \
     ((Type##_state_t *)((instance)->state))
@@ -174,7 +178,10 @@
 
 #define eer_release_skip(Type) eer_lifecycle_skip(Type, release)
 #define eer_should_update_skip(Type)                                           \
-    bool Type##_should_update(void *instance, void *next_props_ptr) { return true; }
+    bool Type##_should_update(void *instance, void *next_props_ptr)            \
+    {                                                                          \
+        return true;                                                           \
+    }
 #define eer_did_mount_skip(Type)   eer_lifecycle_skip(Type, did_mount)
 #define eer_did_update_skip(Type)  eer_lifecycle_skip(Type, did_update)
 #define eer_did_unmount_skip(Type) eer_lifecycle_skip(Type, did_unmount)
@@ -217,8 +224,9 @@
 #define _(...) __VA_ARGS__
 
 #define eer_apply(Type, name, propsValue)                                      \
-    if (name.instance.stage == STAGE_RELEASED                                  \
-        || name.instance.stage == STAGE_DEFINED) {                             \
+    if (CONTEXT_UPDATED == eer_land.state.context                              \
+        && (STAGE_RELEASED == name.instance.stage.state.step                   \
+            || STAGE_DEFINED == name.instance.stage.state.step)) {             \
         eer_lifecycle_prepare(Type, &name, next_props);                        \
         Type##_props_t next_props = propsValue;                                \
         eer_lifecycle_finish(Type, &name, next_props);                         \
@@ -226,23 +234,64 @@
     } else {                                                                   \
         eer_staging(&name.instance, 0);                                        \
     }
+/* Finalize previous step, and full cycle */
 #define eer_react(Type, name, propsValue)                                      \
     {                                                                          \
         Type##_props_t next_props = propsValue;                                \
-        eer_reacting(&name.instance, &next_props);                             \
+        eer_staging(&name.instance, eer_land.state.context);                   \
+        if (CONTEXT_BLOCKED != eer_land.state.context) {                       \
+            &name.instance.stage.state.step = STAGE_REACTING;                  \
+            eer_staging(&name.instance, &next_props);                          \
+        }                                                                      \
     }
 
 #define eer_shut(x)                                                            \
     x.instance.stage = STAGE_UNMOUNTED;                                        \
     eer_staging(&x.instance, 0);
 
-#define __eer_use(x) eer_staging(&(x.instance), 0);
+#define __eer_use(x) eer_staging(&(x.instance), (void *)eer_land.state.context);
 #define eer_use(...) EVAL(MAP(__eer_use, __VA_ARGS__))
 
-#define __eer_loop(x) eer_staging(&x.instance, 0) &&
+#define __eer_with(x)                                                          \
+    eer_staging(&(x.instance), (void *)eer_current_land.state.context) |
+#define eer_with(...)                                                          \
+    for (union eer_land eer_current_land = eer_land;                           \
+         !eer_current_land.state.finished;                                     \
+         eer_current_land.state.finished = true)                               \
+        for (union eer_land eer_land                                           \
+             = {.state = {EVAL(MAP(__eer_with, __VA_ARGS__)) CONTEXT_SAME}};   \
+             !eer_land.state.finished; eer_land.state.finished = true)
+
+#define __eer_init(x) eer_staging(&x.instance, (void *)CONTEXT_UPDATED) |
+#define eer_init(...)                                                          \
+    eer_boot:                                                                  \
+    union eer_land eer_land                                                    \
+        = {.state = {IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(MAP(                 \
+               __eer_init, __VA_ARGS__)) CONTEXT_UPDATED))(CONTEXT_UPDATED)}}; \
+    {                                                                          \
+    }
 #define eer_loop(...)                                                          \
-    IF_ELSE(HAS_ARGS(__VA_ARGS__))                                             \
-    (while (EVAL(MAP(__eer_loop, __VA_ARGS__)) true))(while (true))
+    eer_boot:                                                                  \
+    eer_while(__VA_ARGS__)
+
+#define eer_while(...)                                                         \
+    for (union eer_land eer_land                                               \
+         = {.state = {IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(MAP(                \
+                __eer_init, __VA_ARGS__)) CONTEXT_SAME))(CONTEXT_UPDATED)}};   \
+         eer_land.state.context;                                               \
+         eer_land.state.context = IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(        \
+             MAP(__eer_init, __VA_ARGS__)) CONTEXT_SAME))(CONTEXT_UPDATED))
+
+
+#define eer_terminate                                                          \
+    if (!eer_land.state.unmounted)                                             \
+        goto eer_boot;
+#define eer_halt(code)                                                         \
+    if (!eer_land.state.unmounted)                                             \
+        goto eer_boot;                                                         \
+    {                                                                          \
+        return code;                                                           \
+    }
 
 #ifdef PROFILING
     #include "profiler.h"
@@ -254,14 +303,38 @@
     #define eer_profiler_count_log(...)
 #endif
 
+enum eer_context { CONTEXT_SAME, CONTEXT_UPDATED, CONTEXT_BLOCKED };
+
+union eer_land {
+    struct {
+        enum eer_context context : 2;
+        bool             finished : 1;
+        bool             unmounted : 1;
+        uint8_t          step : 2;
+    } state;
+    uint8_t flags;
+};
+
+union eer_stage {
+    struct {
+        enum {
+            STAGE_BLOCKED,
+            STAGE_RELEASED,
+            STAGE_DEFINED,
+            STAGE_REACTING,
+            STAGE_PREPARED,
+            STAGE_UNMOUNTED
+        } step : 3;
+        bool             updated : 1;
+        enum eer_context context : 2;
+        uint8_t raise_on : 2; /* TODO: Macros for arch dependent size ARCH_BITS
+                                 - 6  */
+    } state;
+    uint8_t flags;
+};
+
 typedef struct eer {
-    enum {
-        STAGE_BLOCKED,
-        STAGE_DEFINED,
-        STAGE_PREPARED,
-        STAGE_RELEASED,
-        STAGE_UNMOUNTED
-    } stage;
+    union eer_stage stage;
 
     void (*will_mount)(void *instance, void *next_props);
 
@@ -279,8 +352,7 @@ typedef struct eer {
 #endif
 } eer_t;
 
-bool eer_staging(eer_t *instance, void *next_props);
-bool eer_reacting(eer_t *instance, void *next_props);
+enum eer_context eer_staging(eer_t *instance, void *next_props);
 
 #ifdef HAL_dbg
     #include <dbg.h>

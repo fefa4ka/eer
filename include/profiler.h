@@ -129,7 +129,7 @@ struct eer_hal_calls {
 
 #undef eer_lifecycle_prepare
 #define eer_lifecycle_prepare(Type, instance, stage)                           \
-    eer_hw_isr_disable();                                                          \
+    eer_hw_isr_disable();                                                      \
     eer_profiler_tick((Type##_t *)instance, stage)
 
 #undef eer_lifecycle_finish
@@ -137,13 +137,39 @@ struct eer_hal_calls {
     eer_profiler_tock((Type##_t *)instance, stage);                            \
     eer_hw_isr_enable()
 
-#undef eer_loop
-#define eer_loop(...)                                                          \
+#define profiler_init()                                                        \
     signal(SIGINT, eer_signal_handler);                                        \
     log_init();                                                                \
-    vcd_init();                                                                \
-    while (IF_ELSE(HAS_ARGS(__VA_ARGS__))(                                     \
-        EVAL(MAP(__eer_loop, __VA_ARGS__)))() eer_step())
+    vcd_init()
+
+#undef eer_init
+#define eer_init(...)                                                          \
+    profiler_init();                                                           \
+    eer_boot:                                                                  \
+    union eer_land eer_land                                                    \
+        = {.state = {IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(MAP(                 \
+               __eer_init, __VA_ARGS__)) CONTEXT_UPDATED))(CONTEXT_UPDATED)}}; \
+    {                                                                          \
+    }
+
+#undef eer_loop
+#define eer_loop(...)                                                          \
+    profiler_init();                                                           \
+    eer_boot:                                                                  \
+    eer_while(__VA_ARGS__)
+
+#undef eer_terminate
+#define eer_terminate \
+    if (!eer_land.state.unmounted && eer_step())                                             \
+        goto eer_boot;
+
+#undef eer_halt
+#define eer_halt(code)                                                         \
+    if (!eer_land.state.unmounted && eer_step())                               \
+        goto eer_boot;                                                         \
+    {                                                                          \
+        return code;                                                           \
+    }
 
 extern struct hash_table     eer_scope;
 extern uint64_t              eer_steps;
@@ -156,5 +182,5 @@ void         eer_signal_handler(int sig);
 unsigned int eer_frame_depth();
 bool         eer_dump_usage();
 uint64_t     eer_step();
-char *       eer_timer_formatted_time(void);
+char        *eer_timer_formatted_time(void);
 unsigned int eer_hash_component(char *word);

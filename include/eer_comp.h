@@ -1,12 +1,7 @@
+
 #pragma once
 
 #include "eer.h"
-
-#define react    eer_react
-#define with     eer_with
-#define apply    eer_apply
-#define use      eer_use
-#define loop     eer_loop
 
 #define WILL_MOUNT    eer_will_mount
 #define SHOULD_UPDATE eer_should_update

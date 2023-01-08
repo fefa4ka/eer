@@ -34,14 +34,14 @@ unsigned long timer_get_ns()
     return 0;
 }
 
-static inline uint16_t timer_get()
+static inline uint64_t timer_get()
 {
     clock_t tick = clock();
     // printf("%ld - %ld\n", tick, timer_get_ns());
     eer_profiler_count_log(timer_get, "()=%d", tick);
+   // printf("Timer get: %ld, %ld, %d\r\n", tick, CLOCKS_PER_SEC, tick * 1000 /
+   // CLOCKS_PER_SEC);
     return tick;
-    // printf("Timer get: %ld, %ld, %d\r\n", tick, CLOCKS_PER_SEC, tick /
-    // CLOCKS_PER_SEC);
 }
 
 struct timer_callback {
@@ -60,6 +60,7 @@ void *timer_timeout(void *ptr)
     struct timer_callback *callback = ptr;
 
     usleep(callback->timeout);
+    printf("sleep %d\n", callback->timeout);
     callback->callback(callback->args, 0);
     *callback = (struct timer_callback){0};
 
@@ -68,11 +69,12 @@ void *timer_timeout(void *ptr)
 
 static void timer_compare_set(uint16_t ticks, eer_callback_t *callback)
 {
+    uint16_t now = timer_get();
     eer_profiler_count(timer_compare_set);
     for (size_t i = 0; i < TIMERS_NR; i++) {
         if (timer_callback_buffer[i].callback == NULL) {
             struct timer_callback timer_callback
-                = {ticks, callback->method, callback->argument, i};
+                = {ticks - now, callback->method, callback->argument, i};
             struct timer_callback *timer = timer_callback_buffer + i;
             *timer                       = timer_callback;
             pthread_create(&timer->thread, NULL, *timer_timeout, (void *)timer);
@@ -104,14 +106,23 @@ static void timer_off()
 
 static uint16_t timer_ticks_to_us(uint16_t ticks)
 {
-    eer_profiler_count_log(timer_ticks_to_us, "(%d)=%d", ticks, ticks);
-    return ticks / 1;
+    uint16_t ms = ticks * 1000 / CLOCKS_PER_SEC;
+    eer_profiler_count_log(timer_ticks_to_us, "(%d)=%d ms", ticks, ms);
+    return ticks;
+}
+
+static uint16_t timer_us_to_ticks(uint16_t us)
+{
+    uint16_t ms = us * CLOCKS_PER_SEC / 1000;
+    eer_profiler_count_log(timer_us_to_ticks, "(%d)=%d", us, us);
+    return us;
 }
 
 
 eer_timer_handler_t eer_hw_timer = {.init        = timer_init,
                                     .get         = timer_get,
                                     .ticks_to_us = timer_ticks_to_us,
+                                    .us_to_ticks = timer_us_to_ticks,
                                     .isr         = {
                                         .enable  = timer_isr_enable,
                                         .disable = timer_off,

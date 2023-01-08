@@ -17,3 +17,5 @@ target_sources(${CMAKE_SYSTEM_PROCESSOR}_${HAL}_gpio PRIVATE log.c vcd.c)
 
 add_hal_library(uart)
 add_hal_library(timer)
+add_hal_library(sys)
+add_hal_library(ble)

@@ -14,20 +14,18 @@ C library provides a set of functions and macros for creating real-time applicat
 
 In this model, each component goes through a series of stages during its lifecycle, including **mounting**, **preparation**, **release**, and **unmounting**. Each stage corresponds to a specific set of actions that can be performed by the component. For example, the "_will mount_" and "_did mount_" methods are called when the component is first being added to the system, while the "_should update_" and "_will update_" methods are called when the component is being prepared for an update.
 
-There are **library of components** for common MCU functionality, including GPIO, timers, ADC, buttons, serial communication, PWM, bitbang, SPI, schedulers, and servos.
+There are **[library of components](https://github.com/fefa4ka/eer-components)** for common MCU functionality, including GPIO, timers, ADC, buttons, serial communication, PWM, bitbang, SPI, schedulers, and servos.
 
-**Examples of real-time applications**, such as a sensor-dependent motor controller and a shell interface over serial communication
+**[Examples of real-time applications](https://github.com/fefa4ka/eer-apps)**, such as a sensor-dependent motor controller and a shell interface over serial communication
 
 ### Benifits
 
 The declarative approach used in this library has several benefits compared to a more traditional, imperative approach to developing MCU applications. Some of the benefits include:
 
--   Simplicity: By specifying the desired behavior of the system rather than the specific steps to achieve that behavior, you can create simpler, more readable code. This makes it easier to understand and maintain your applications.
--   Modularity: The component-based nature of the library allows you to break down your application into smaller, reusable pieces. This makes it easier to develop and test individual parts of the system, as well as reuse them in other applications.
--   Flexibility: The declarative approach allows you to easily change the behavior of the system by simply updating the component's properties. This allows you to quickly iterate and adapt to changing requirements.
--   Efficiency: The library's internal implementation is optimized for efficient execution, minimizing the overhead of using the declarative approach.
-
-    Overall, the declarative approach used in this library provides a simple, flexible, and efficient way to develop MCU applications.
+-   **Simplicity**: By specifying the desired behavior of the system rather than the specific steps to achieve that behavior, you can create simpler, more readable code. This makes it easier to understand and maintain your applications.
+-   **Modularity**: The component-based nature of the library allows you to break down your application into smaller, reusable pieces. This makes it easier to develop and test individual parts of the system, as well as reuse them in other applications.
+-   **Flexibility**: The declarative approach allows you to easily change the behavior of the system by simply updating the component's properties. This allows you to quickly iterate and adapt to changing requirements.
+-   **Efficiency**: The library's internal implementation is optimized for efficient execution, minimizing the overhead of using the declarative approach.
 
 ## Component Lifecycle
 
@@ -66,7 +64,7 @@ The unmounting stage occurs when a component is no longer needed and is being un
 To use `eer` in your project, include the library header files and initialize components using the `Component` macro. Components can be updated and applied to the system using the `apply` or `use` macros within the `loop` structure.
 
 ```c
-#include <eer.h>
+#include <eer_app.h>
 
 /* Initialize component */
 Component(component, _({
@@ -93,10 +91,10 @@ The `eer` library includes an event-driven loop that allows developers to specif
 
 The event-loop is structured within a `loop(component, ...) { ... }` macro.
 
-ALso to start the event-loop, developers can start your application description with `ignite(component, ...);` statement and end it with either a `halt(<exit_code>);` statement or a `terminate { ... }` section.
+Also to start the event-loop, developers can start your application description with `ignite(component, ...);` statement and end it with either a `halt(<exit_code>);` statement or a `terminate { ... }` section.
 
 ```c
-#include <eer.h>
+#include <eer_app.h>
 
 Chip(sys,
    _({
@@ -119,6 +117,7 @@ SPIComputer(spi, _({
    ...
 }));
 
+struct gyro_data = ...
 void dump_accelerometer (eer_t *imu)
 {
     gyro_data.x = eer_state(MMA7455, imu, force.value.x);
@@ -127,7 +126,7 @@ void dump_accelerometer (eer_t *imu)
 }
 MMA7455(imu, _({
    .spi             = &spi,
-   .chip_select_pin = &hw_pin(A, 3),
+   .chip_select_pin = hw_pin(A, 3),
    .onChange        = dump_accelerometer,
    ...
 }))
@@ -138,7 +137,7 @@ Display(indicator, _({
 }))
 
 /* Infinity loop between ignite and halt */
-ignite (sys, clk, ...);
+ignite(sys, clk, ...);
 
 with(spi) {
    with(imu) {
@@ -159,7 +158,7 @@ Library provides a simple and straightforward way to define, initialize, and use
 Here is a full implementation of the `MyComponent` component, including the lifecycle methods and any additional functions or methods that you might want to include:
 
 ```c
-#include <eers.h>
+#include <eer_comp.h>
 
 /* Declare the component type */
 eer_header(MyComponent);
@@ -224,18 +223,31 @@ You can then use the component in your code like this:
 #include <MyComponent.h>
 
 /* Initialize the component with some initial props */
-Component(myComponent, _({
+MyComponent(myComponentInstance, _({
   .value = 42
 }));
 
 /* Update the component's state using the apply function */
-apply(MyComponent, myComponent, _({
+/* Just initialize and let live */
+ignite(myComponentInstance); 
+/* Utilize current lifecycle */
+use(myComponentInstance); 
+/* Loop while component should update */
+while(myComponentInstance) { ... }
+/* Apply new properties */
+apply(MyComponent, myComponentInstance, _({
+  .value = 123
+}));
+/* Apply the new properties immediately. The entire previous
+ * and lifecycle for release() with new properties 
+ * will be utilized on-place */
+react(MyComponent, myComponentInstance, _({
   .value = 123
 }));
 
 /* Call the component's methods */
-MyComponent_reset(&myComponent);
-int value = MyComponent_getValue(&myComponent);
+MyComponent_reset(&myComponentInstance);
+int value = MyComponent_getValue(&myComponentInstance);
 ```
 
 ### HAL API
@@ -246,16 +258,15 @@ The HAL includes several handler structures, such as `eer_sys_handler_t`, `eer_i
 
 The HAL also includes several enumerations that define constants for various settings and modes, such as `eer_sys_mode`, `eer_communication_mode`, `eer_bit_order`, `eer_io_event`, `eer_io_level`, and `eer_pin_mode`.
 
-## Components Library
+## [Components Library](https://github.com/fefa4ka/eer-components)
 
--   **GPIO**: This component allows you to interact with the general-purpose input/output (GPIO) pins on your device. You can configure a pin as an input or output, set or read the level (high or low) of an output pin, and register callbacks to be triggered when the level of an input pin changes. This component is often used for simple digital input and output tasks, such as reading the state of a button or controlling an LED.
--   **Timer**: This component allows you to set up a timer that can trigger events at specific intervals. You can use it to create delays, measure elapsed time, or generate periodic events.
--   **ADC**: This component allows you to read analog values from an analog-to-digital converter (ADC) on your device. You can use it to measure analog signals such as the output of a temperature sensor or the position of a potentiometer.
--   **Button**: This component is a specialized version of the GPIO component that is designed specifically for use with buttons. It provides a debouncing mechanism to filter out noise and allows you to register callbacks for press, release, and click events.
--   **Serial**: This component allows you to send and receive data over a serial communication interface, such as a UART or USB. You can use it to communicate with other devices or with a host computer.
--   **UART**: This component is a specialized version of the serial component that is designed specifically for use with universal asynchronous receiver-transmitter (UART) interfaces. It allows you to set the baud rate and other parameters of the UART and provides additional features such as flow control.
--   **PWM**: This component allows you to generate pulse-width modulated (PWM) signals, which can be used to control the brightness of an LED or the speed of a motor, for example.
--   **Bitbang**: This component allows you to use a set of GPIO pins as a simple serial communication interface, such as I2C or SPI.
--   **SPI**: This component allows you to communicate with devices over a serial peripheral interface (SPI) bus. It provides support for multiple slave devices and allows you to set the clock frequency and other parameters of the interface.
--   **Scheduler**: This component allows you to schedule tasks to be run at specific intervals or at specific times. You can use it to create a simple event loop or to manage complex task dependencies.
--   **Servo**: This componet allow you to control servo motors
+-   **GPIO**: To interact with the general-purpose input/output (GPIO) pins on your device. You can configure a pin as an input or output, set or read the level (high or low) of an output pin, and register callbacks to be triggered when the level of an input pin changes. This component is often used for simple digital input and output tasks, such as reading the state of a button or controlling an LED.
+-   **Timer**: To set up a timer that can trigger events at specific intervals. You can use it to create delays, measure elapsed time, or generate periodic events.
+-   **ADC**: To read analog values from an analog-to-digital converter (ADC) on your device. You can use it to measure analog signals such as the output of a temperature sensor or the position of a potentiometer.
+-   **Button**: Is a specialized version of the GPIO component that is designed specifically for use with buttons. It provides a debouncing mechanism to filter out noise and allows you to register callbacks for press, release, and click events.
+-   **Serial**: To send and receive data over a serial communication interface, such as a UART. You can use it to communicate with other devices or with a host computer.
+-   **PWM**: To generate pulse-width modulated (PWM) signals, which can be used to control the brightness of an LED or the speed of a motor, for example.
+-   **Bitbang**: To use a set of GPIO pins as a simple serial communication interface, such as I2C or SPI.
+-   **SPI**: To communicate with devices over a serial peripheral interface (SPI) bus. It provides support for multiple slave devices and allows you to set the clock frequency and other parameters of the interface.
+-   **Scheduler**: To schedule tasks to be run at specific intervals or at specific times. You can use it to create a simple event loop or to manage complex task dependencies.
+-   **Servo**: To control servo motors.

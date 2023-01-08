@@ -8,25 +8,13 @@ In general, a declarative programming model can be useful for microcontroller ap
 
 Using functional components can also be a useful approach for microcontroller applications because it allows you to break down the system into smaller, self-contained units of code that can be developed and tested independently. This can help to improve the modularity and maintainability of the code.
 
-This approach can be a _useful way to organize and structure code_ for microcontroller applications, especially if you are familiar with the React library and its component-based architecture.
-
-Overall, this approach can be effective for building real-time applications on microcontrollers, as it allows developers to declaratively specify the behavior of their application and how it should respond to changes in its environment. By using functional components and an event-driven loop, developers can build applications that are modular, scalable, and maintainable.
-
-Using a declarative approach in MCU development can be a good way to structure your code, as it allows you to specify the desired behavior of your system rather than the specific steps to achieve that behavior. This can make it easier to understand the overall logic of your system and make it more flexible and adaptable to changes.
-
-It is also a good idea to use a hardware abstraction layer to separate the low-level hardware-specific code from the rest of your application, as this can make it easier to port your code to different architectures and reduce the amount of redundant code you need to write.
-
 ## Features
 
-C library provides a set of functions and macros for creating microcontroller applications using a declarative programming model based on the lifecycle of functional components.
+C library provides a set of functions and macros for creating real-time applications using a declarative programming model based on the lifecycle of functional components.
 
 In this model, each component goes through a series of stages during its lifecycle, including **mounting**, **preparation**, **release**, and **unmounting**. Each stage corresponds to a specific set of actions that can be performed by the component. For example, the "_will mount_" and "_did mount_" methods are called when the component is first being added to the system, while the "_should update_" and "_will update_" methods are called when the component is being prepared for an update.
 
-Library provides different ways to use components within a microcontroller application, such as through the `apply(...)` or `use(...)` macros within a "`loop(...) { ... }` structure, or through the `react(...)` macro. These allow you to incorporate components into your application in a way that is appropriate for your specific needs.
-Library provides a useful set of tools for developing microcontroller applications using a declarative programming model and functional components. It may be helpful to provide more context on the specific types of applications that you envision using this library to develop, as well as any challenges or considerations that you have encountered while working with it.
-Library provides a set of hardware abstraction layers (HALs) that enable it to be used with a variety of microcontroller architectures, as well as a debug wrapper that can help with debugging and troubleshooting.
-
-There are **library of components** for common MCU functionality, including GPIO, timers, ADC, buttons, serial communication, PWM, bitbang, SPI, schedulers, and servos
+There are **library of components** for common MCU functionality, including GPIO, timers, ADC, buttons, serial communication, PWM, bitbang, SPI, schedulers, and servos.
 
 **Examples of real-time applications**, such as a sensor-dependent motor controller and a shell interface over serial communication
 
@@ -97,11 +85,76 @@ loop(component, ...) {
 
 The `use` macro take a component as an argument and causes the component's execution using last setted properties.
 
-The `apply` macro appears to take three arguments: a `type`, a `component`, and a block of properties. The `type` and `component` arguments may specify the type of component and the specific instance of the component to be used, while the properties may include values or settings that are specific to the component. The `apply` macro causes the component's preparation stage with `next_props` to be executed on each iteration of the loop.
+The `apply` macro appears to take three arguments: a `type`, a `component`, and a block of properties. The `type` and `component` arguments may specify the type of component and the specific instance of the component to be used, while the properties may include values or settings that are specific to the component. The `apply` macro causes the component's preparation stage with `next_props` to be executed on next iteration of the loop.
+
+### Declarative Usage
+
+The `eer` library includes an event-driven loop that allows developers to specify how components should respond to changes in their state or the state of other components.
+
+The event-loop is structured within a `loop(component, ...) { ... }` macro.
+
+ALso to start the event-loop, developers can start your application description with `ignite(component, ...);` statement and end it with either a `halt(<exit_code>);` statement or a `terminate { ... }` section.
+
+```c
+#include <eer.h>
+
+Chip(sys,
+   _({
+       .on = {
+           .boot = print_version,
+           .ready = print_shell,
+       }
+   }),
+   _({
+       .frequency = {.cpu = CPU_FREQUENCY},
+       .sys       = &hw(sys),
+   })
+);
+
+Clock(clk, &hw(timer), TIMESTAMP);
+
+SPIComputer(spi, _({
+   .clock = &clk,
+   .io = &hw(gpio)
+   ...
+}));
+
+void dump_accelerometer (eer_t *imu)
+{
+    gyro_data.x = eer_state(MMA7455, imu, force.value.x);
+    gyro_data.y = eer_state(MMA7455, imu, force.value.y);
+    gyro_data.z = eer_state(MMA7455, imu, force.value.z);
+}
+MMA7455(imu, _({
+   .spi             = &spi,
+   .chip_select_pin = &hw_pin(A, 3),
+   .onChange        = dump_accelerometer,
+   ...
+}))
+
+Display(indicator, _({
+    .property = value,
+    ...
+}))
+
+/* Infinity loop between ignite and halt */
+ignite (sys, clk, ...);
+
+with(spi) {
+   with(imu) {
+       apply(Display, indicator, _({
+           .gyro = &gyro_data
+        }));
+    }
+}
+
+halt(0);
+
+```
 
 ### Defining Component
 
-Library provides a simple and straightforward way to define, initialize, and use components within a microcontroller application. It may be helpful to provide more context on the specific types of components that can be used with the library and the types of applications that it is well suited for.
+Library provides a simple and straightforward way to define, initialize, and use components within a microcontroller application.
 
 Here is a full implementation of the `MyComponent` component, including the lifecycle methods and any additional functions or methods that you might want to include:
 
@@ -193,8 +246,6 @@ The HAL includes several handler structures, such as `eer_sys_handler_t`, `eer_i
 
 The HAL also includes several enumerations that define constants for various settings and modes, such as `eer_sys_mode`, `eer_communication_mode`, `eer_bit_order`, `eer_io_event`, `eer_io_level`, and `eer_pin_mode`.
 
-HAL provides a wide range of features and functions for working with various hardware components and peripherals on a microcontroller, including functions for system and interrupt management, GPIO control, ADC usage, timer manipulation, and serial communication.
-
 ## Components Library
 
 -   **GPIO**: This component allows you to interact with the general-purpose input/output (GPIO) pins on your device. You can configure a pin as an input or output, set or read the level (high or low) of an output pin, and register callbacks to be triggered when the level of an input pin changes. This component is often used for simple digital input and output tasks, such as reading the state of a button or controlling an LED.
@@ -208,12 +259,3 @@ HAL provides a wide range of features and functions for working with various har
 -   **SPI**: This component allows you to communicate with devices over a serial peripheral interface (SPI) bus. It provides support for multiple slave devices and allows you to set the clock frequency and other parameters of the interface.
 -   **Scheduler**: This component allows you to schedule tasks to be run at specific intervals or at specific times. You can use it to create a simple event loop or to manage complex task dependencies.
 -   **Servo**: This componet allow you to control servo motors
-
-## Alternatives
-
-There are several alternatives to this library that you could consider, depending on your specific needs and preferences. Some popular options include:
-
--   FreeRTOS: This is a widely used real-time operating system that provides a range of features including task scheduling, inter-task communication, and memory management. It is available for a variety of platforms and has a large user base, which means there is a lot of documentation and support available.
--   RIOT OS: This is an open-source operating system designed for Internet of Things (IoT) applications. It is designed to be lightweight and easy to use, and supports a range of platforms including microcontrollers and Linux systems.
--   ChibiOS/RT: This is an open-source real-time operating system that provides a range of features including task scheduling, inter-task communication, and memory management. It is available for a variety of platforms and has a large user base, which means there is a lot of documentation and support available.
--   Zephyr: This is an open-source real-time operating system designed for use in IoT applications. It provides a range of features including task scheduling, inter-task communication, and memory management, and is available for a variety of platforms.

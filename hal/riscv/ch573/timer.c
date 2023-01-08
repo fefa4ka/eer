@@ -96,7 +96,7 @@ static void timer_compare_set(uint64_t ticks, eer_callback_t *callback)
 
     SysTick->CMP = ticks - 1; /* set reload register */
     PFIC->IENR[((uint32_t)(SysTick_IRQn) >> 5)]
-        = (1 << ((uint32_t)(SysTick_IRQn)&0x1F));
+        = (1 << ((uint32_t)(SysTick_IRQn) & 0x1F));
 
     SysTick->CTLR.w
         = SysTick_CTRL_RELOAD_Msk | SysTick_CTRL_CLKSOURCE_Msk

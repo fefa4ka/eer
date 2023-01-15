@@ -249,11 +249,11 @@
     x.instance.stage = STAGE_UNMOUNTED;                                        \
     eer_staging(&x.instance, 0);
 
-#define __eer_use(x) eer_staging(&(x.instance), (void *)eer_land.state.context);
+#define __eer_use(x) eer_staging(&(x.instance), (void *)(uintptr_t)eer_land.state.context);
 #define eer_use(...) EVAL(MAP(__eer_use, __VA_ARGS__))
 
 #define __eer_with(x)                                                          \
-    eer_staging(&(x.instance), (void *)eer_current_land.state.context) |
+    eer_staging(&(x.instance), (void *)(uintptr_t)eer_current_land.state.context) |
 #define eer_with(...)                                                          \
     for (union eer_land eer_current_land = eer_land;                           \
          !eer_current_land.state.finished;                                     \
@@ -264,12 +264,11 @@
 
 #define __eer_init(x) eer_staging(&x.instance, (void *)CONTEXT_UPDATED) |
 #define eer_init(...)                                                          \
+    union eer_land eer_land;                                                   \
     eer_boot:                                                                  \
-    union eer_land eer_land                                                    \
-        = {.state = {IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(MAP(                 \
-               __eer_init, __VA_ARGS__)) CONTEXT_UPDATED))(CONTEXT_UPDATED)}}; \
-    {                                                                          \
-    }
+    eer_land.state.context = IF_ELSE(HAS_ARGS(__VA_ARGS__))(                   \
+        (EVAL(MAP(__eer_init, __VA_ARGS__)) CONTEXT_UPDATED))(CONTEXT_UPDATED)
+
 #define eer_loop(...)                                                          \
     eer_boot:                                                                  \
     eer_while(__VA_ARGS__)

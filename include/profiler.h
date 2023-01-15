@@ -41,11 +41,11 @@ struct eer_hal_calls {
     uint64_t timer_us_to_ticks;
 
     uint64_t lr_seek;
-    uint64_t lr_write;
-    uint64_t lr_read;
+    uint64_t lr_put;
+    uint64_t lr_get;
     uint64_t lr_exists;
-    uint64_t lr_length;
-    uint64_t lr_length_owned;
+    uint64_t lr_count;
+    uint64_t lr_count_owned;
 };
 
 #define MAX_TABLE_SIZE 10007 // Prime Number for hash table
@@ -145,12 +145,10 @@ struct eer_hal_calls {
 #undef eer_init
 #define eer_init(...)                                                          \
     profiler_init();                                                           \
+    union eer_land eer_land;                                                    ; \
     eer_boot:                                                                  \
-    union eer_land eer_land                                                    \
-        = {.state = {IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(MAP(                 \
-               __eer_init, __VA_ARGS__)) CONTEXT_UPDATED))(CONTEXT_UPDATED)}}; \
-    {                                                                          \
-    }
+        eer_land.state.context = IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(MAP(                 \
+               __eer_init, __VA_ARGS__)) CONTEXT_UPDATED))(CONTEXT_UPDATED)
 
 #undef eer_loop
 #define eer_loop(...)                                                          \

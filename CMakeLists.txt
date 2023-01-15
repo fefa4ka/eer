@@ -12,9 +12,6 @@ message(STATUS "Platform: ${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/${HAL}"
 add_library(hash STATIC src/hash.c)
 target_include_directories(hash PUBLIC include)
 
-add_library(lr STATIC src/lr.c)
-target_include_directories(lr PUBLIC include ${EER_HAL_PATH} ${CMAKE_CURRENT_BINARY_DIR})
-
 add_subdirectory(${EER_HAL_PATH})
 
 add_library(eer STATIC src/eer.c)

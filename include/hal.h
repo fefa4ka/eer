@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-
 typedef struct eer_sys_handler {
     struct {
         void (*set)(void *unit);
@@ -103,7 +102,7 @@ typedef struct eer_timer_isr {
 
 typedef struct eer_timer_handler {
     void (*init)(void *config);
-    uint16_t (*get)();
+    uint16_t (*get)(); /* FIXME: Platform dependent? */
     uint16_t (*ticks_to_us)(uint16_t ticks);
     uint16_t (*us_to_ticks)(uint16_t us);
 

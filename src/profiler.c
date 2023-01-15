@@ -75,11 +75,11 @@ unsigned int eer_frame_depth()
         eer_dump_call(stage, timer_off);                                       \
         eer_dump_call(stage, timer_ticks_to_us);                               \
         eer_dump_call(stage, lr_seek);                                         \
-        eer_dump_call(stage, lr_write);                                        \
-        eer_dump_call(stage, lr_read);                                         \
+        eer_dump_call(stage, lr_put);                                        \
+        eer_dump_call(stage, lr_get);                                         \
         eer_dump_call(stage, lr_exists);                                       \
-        eer_dump_call(stage, lr_length);                                       \
-        eer_dump_call(stage, lr_length_owned);                                 \
+        eer_dump_call(stage, lr_count);                                       \
+        eer_dump_call(stage, lr_count_owned);                                 \
     }
 
 

@@ -1,12 +1,14 @@
 # eer
 
-`eer` is a C99 library for creating microcontroller (MCU) applications using a declarative approach. It allows developers to create simple components for each subsystem and compile a system using these functional components.
+`eer` is a C99 library for creating applications using a declarative approach. It allows developers to create simple components for each subsystem and compile a system using these functional components.
 
-`eer` is a library that allows developers to create _real-time applications_ on microcontrollers in a way that is _similar to the way React components are used to build user interfaces._ The library provides a set of components that can be used to build applications, as well as a HAL (_Hardware Abstraction Layer_) that provides a common interface for interacting with the microcontroller's hardware. The library also includes an _event-driven loop_ that allows developers to specify how components should respond to changes in their state or the state of other components.
+This approach allows developers to create _real-time applications_ in a way that is _similar to the way React components are used to build user interfaces._ The library provides a set of components that can be used to build applications, as well as a HAL (_Hardware Abstraction Layer_) that provides a common interface for interacting with the hardware. The library also includes an _event-driven loop_ that allows developers to specify how components should respond to changes in their state or the state of other components.
 
-In general, a declarative programming model can be useful for microcontroller applications because it allows you to **describe the desired output of the system based on its state**, rather than specifying the exact steps to be taken to achieve that output. This can help to simplify the code and make it easier to understand and maintain.
+`eer` is not a replacement for a operating system, but it can be used in _combination with an OS_ to build embedded systems or _be used as a bare-metal solution_, providing a set of libraries and tools for building embedded systems using a declarative approach and manage the execution of tasks in real-time.
 
-Using functional components can also be a useful approach for microcontroller applications because it allows you to break down the system into smaller, self-contained units of code that can be developed and tested independently. This can help to improve the modularity and maintainability of the code.
+In general, a declarative programming model can be useful for applications because it allows you to **describe the desired output of the system based on its state**, rather than specifying the exact steps to be taken to achieve that output. This can help to simplify the code and make it easier to understand and maintain.
+
+Using functional components can also be a useful approach for applications because it allows you to break down the system into smaller, self-contained units of code that can be developed and tested independently. This can help to improve the modularity and maintainability of the code.
 
 ## Features
 
@@ -14,13 +16,13 @@ C library provides a set of functions and macros for creating real-time applicat
 
 In this model, each component goes through a series of stages during its lifecycle, including **mounting**, **preparation**, **release**, and **unmounting**. Each stage corresponds to a specific set of actions that can be performed by the component. For example, the "_will mount_" and "_did mount_" methods are called when the component is first being added to the system, while the "_should update_" and "_will update_" methods are called when the component is being prepared for an update.
 
-There are **[library of components](https://github.com/fefa4ka/eer-components)** for common MCU functionality, including GPIO, timers, ADC, buttons, serial communication, PWM, bitbang, SPI, schedulers, and servos.
+There are **[library of components](https://github.com/fefa4ka/eer-components)** for common functionality.
 
 **[Examples of real-time applications](https://github.com/fefa4ka/eer-apps)**, such as a sensor-dependent motor controller and a shell interface over serial communication
 
 ### Benifits
 
-The declarative approach used in this library has several benefits compared to a more traditional, imperative approach to developing MCU applications. Some of the benefits include:
+The declarative approach used in this library has several benefits compared to a more traditional, imperative approach to developing applications. Some of the benefits include:
 
 -   **Simplicity**: By specifying the desired behavior of the system rather than the specific steps to achieve that behavior, you can create simpler, more readable code. This makes it easier to understand and maintain your applications.
 -   **Modularity**: The component-based nature of the library allows you to break down your application into smaller, reusable pieces. This makes it easier to develop and test individual parts of the system, as well as reuse them in other applications.
@@ -153,7 +155,7 @@ halt(0);
 
 ### Defining Component
 
-Library provides a simple and straightforward way to define, initialize, and use components within a microcontroller application.
+Library provides a simple and straightforward way to define, initialize, and use components within a application.
 
 Here is a full implementation of the `MyComponent` component, including the lifecycle methods and any additional functions or methods that you might want to include:
 
@@ -229,17 +231,21 @@ MyComponent(myComponentInstance, _({
 
 /* Update the component's state using the apply function */
 /* Just initialize and let live */
-ignite(myComponentInstance); 
+ignite(myComponentInstance);
+
 /* Utilize current lifecycle */
-use(myComponentInstance); 
+use(myComponentInstance);
+
 /* Loop while component should update */
 while(myComponentInstance) { ... }
+
 /* Apply new properties */
 apply(MyComponent, myComponentInstance, _({
   .value = 123
 }));
+
 /* Apply the new properties immediately. The entire previous
- * and lifecycle for release() with new properties 
+ * and lifecycle for release() with new properties
  * will be utilized on-place */
 react(MyComponent, myComponentInstance, _({
   .value = 123
@@ -250,9 +256,11 @@ MyComponent_reset(&myComponentInstance);
 int value = MyComponent_getValue(&myComponentInstance);
 ```
 
+## HAL
+
 ### HAL API
 
-The C library appears to be a hardware abstraction layer (HAL) that provides a set of functions and structures for working with various hardware components and peripherals on a microcontroller.
+The C library appears to be a hardware abstraction layer (HAL) that provides a set of functions and structures for working with various hardware components and peripherals on a hardware.
 
 The HAL includes several handler structures, such as `eer_sys_handler_t`, `eer_isr_handler_t`, `eer_gpio_handler_t`, `eer_adc_handler_t`, and `eer_timer_handler_t`, which define functions for interacting with the system, handling interrupts, working with GPIOs, using ADC, and working with timers, respectively.
 

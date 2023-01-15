@@ -11,6 +11,7 @@
 #define react eer_react
 
 #define halt eer_halt
+#define terminate eer_terminate
 
 #define pin_t    eer_pin_t
 #define pin_mode eer_pin_mode

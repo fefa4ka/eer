@@ -1,7 +1,5 @@
 #include <eer.h>
 
-union eer_land eer_land;
-
 enum eer_context eer_staging(eer_t *instance, void *next_props)
 {
     uintptr_t context = (uintptr_t)next_props;

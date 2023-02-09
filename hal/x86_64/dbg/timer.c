@@ -34,14 +34,16 @@ unsigned long timer_get_ns()
     return 0;
 }
 
-static inline uint64_t timer_get()
+static inline void *timer_get(void *value)
 {
     clock_t tick = clock();
     // printf("%ld - %ld\n", tick, timer_get_ns());
     eer_profiler_count_log(timer_get, "()=%d", tick);
    // printf("Timer get: %ld, %ld, %d\r\n", tick, CLOCKS_PER_SEC, tick * 1000 /
    // CLOCKS_PER_SEC);
-    return tick;
+    *(uint64_t*)value = tick;
+
+    return value;
 }
 
 struct timer_callback {

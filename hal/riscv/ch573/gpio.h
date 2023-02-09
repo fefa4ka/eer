@@ -52,7 +52,5 @@ typedef struct {
             &R32_P##port##_PU,  &R32_P##port##_DIR, &R32_P##port##_CLR,     \
         },                                                                     \
             pin,                                                               \
-        {                                                                      \
             0                                                                  \
-        }                                                                      \
     }

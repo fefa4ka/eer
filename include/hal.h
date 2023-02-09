@@ -102,7 +102,7 @@ typedef struct eer_timer_isr {
 
 typedef struct eer_timer_handler {
     void (*init)(void *config);
-    uint16_t (*get)(); /* FIXME: Platform dependent? */
+    void *(*get)(void *value); /* FIXME: Platform dependent? */
     uint16_t (*ticks_to_us)(uint16_t ticks);
     uint16_t (*us_to_ticks)(uint16_t us);
 

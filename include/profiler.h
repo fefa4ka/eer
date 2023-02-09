@@ -145,10 +145,12 @@ struct eer_hal_calls {
 #undef eer_init
 #define eer_init(...)                                                          \
     profiler_init();                                                           \
-    union eer_land eer_land;                                                    ; \
+    union eer_land eer_land;                                                   \
+    ;                                                                          \
+    eer_land.flags = 0;                                                        \
     eer_boot:                                                                  \
-        eer_land.state.context = IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(MAP(                 \
-               __eer_init, __VA_ARGS__)) CONTEXT_UPDATED))(CONTEXT_UPDATED)
+    eer_land.state.context = IF_ELSE(HAS_ARGS(__VA_ARGS__))(                   \
+        (EVAL(MAP(__eer_init, __VA_ARGS__)) CONTEXT_UPDATED))(CONTEXT_UPDATED)
 
 #undef eer_loop
 #define eer_loop(...)                                                          \
@@ -157,8 +159,8 @@ struct eer_hal_calls {
     eer_while(__VA_ARGS__)
 
 #undef eer_terminate
-#define eer_terminate \
-    if (!eer_land.state.unmounted && eer_step())                                             \
+#define eer_terminate                                                          \
+    if (!eer_land.state.unmounted && eer_step())                               \
         goto eer_boot;
 
 #undef eer_halt

@@ -132,3 +132,6 @@ static inline void eer_hw_isr_disable_system(IRQn_Type IRQn)
     __nop();
     __nop();
 }
+
+typedef uint64_t timer_size_t;
+#define TIMER_MAX UINT64_MAX

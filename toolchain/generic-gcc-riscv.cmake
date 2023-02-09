@@ -42,14 +42,23 @@ set(HAL ${MCU})
 
 set(CMAKE_EXE_LINKER_FLAGS "-nostartfiles -Xlinker --gc-sections -Xlinker --print-memory-usage")
 
-add_compile_options(
-    -std=gnu99
-    -march=rv32imac
-    -mabi=ilp32
-    -mcmodel=medany
-    -msmall-data-limit=8
-    -mno-save-restore
+if(MCU MATCHES "ch573")
+    add_compile_options(
+        -std=gnu99
+        -march=rv32imac
+        -mabi=ilp32
+        -mcmodel=medany
+        -msmall-data-limit=8
+        -mno-save-restore
+        )
+elseif(MCU MATCHES "ch32v003")
+    add_compile_options(
+        -march=rv32ec
+        -mabi=ilp32e
+        -msmall-data-limit=0
+        -msave-restore
     )
+endif()
 
 add_compile_options(
     -fmessage-length=0

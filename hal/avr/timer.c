@@ -9,7 +9,7 @@ static void timer_init(void *config)
     TCCR1B |= (1 << CS11); // | (1 << WGM12);// | (1 << CS10);
 }
 
-static uint16_t timer_get() { return TCNT1; }
+static void *timer_get(void *value) { *(uint16_t)value = TCNT1; return value; }
 
 static void (*_timer_compare_func)(void *trigger, void *argument);
 static void *_timer_compare_func_arg = 0;

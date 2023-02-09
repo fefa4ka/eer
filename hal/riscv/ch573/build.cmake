@@ -1,4 +1,4 @@
-set(LINKER_SCRIPT /Users/fefa4ka/Development/ee-react/eer-apps/lego/eer/hal/riscv/${HAL}/${HAL}.ld )
+set(LINKER_SCRIPT ${EER_LIB_PATH}/hal/riscv/${HAL}/${HAL}.ld )
 ## Rename the output to .elf as we will create multiple files
 set_target_properties(
     ${PROJECT_NAME}
@@ -7,7 +7,7 @@ set_target_properties(
     LINK_FLAGS "-T ${LINKER_SCRIPT} -Wl,-Map,\"${PROJECT_NAME}.map\" --specs=nano.specs --specs=nosys.specs"
     )
 
-set(CMAKE_ASM_COMPILE_OBJECT "<CMAKE_ASM_COMPILER> <DEFINES> <INCLUDES> <FLAGS> -x assembler -c -o <OBJECT> <SOURCE>")
+set(CMAKE_ASM_COMPILE_OBJECT "<CMAKE_ASM_COMPILER> <DEFINES> <FLAGS> -x assembler -c -o <OBJECT> <SOURCE>")
 set_property(SOURCE ${ARCH_PATH}/${HAL}.s APPEND PROPERTY COMPILE_OPTIONS "-x" "assembler")
 target_sources(${PROJECT_NAME} PUBLIC ${ARCH_PATH}/${HAL}.s)
 

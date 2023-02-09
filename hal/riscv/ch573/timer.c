@@ -66,7 +66,8 @@ struct __attribute__((packed)) SysTick {
 #define SysTick_CTRL_TICKINT_Msk   (1 << 1)
 #define SysTick_CTRL_ENABLE_Msk    (1 << 0)
 
-static void timer_init(void *config) {
+static void timer_init(void *config)
+{
     /* Enable system counter STK */
     SysTick->CTLR.w
         = SysTick_CTRL_RELOAD_Msk | SysTick_CTRL_CLKSOURCE_Msk
@@ -74,7 +75,12 @@ static void timer_init(void *config) {
           | SysTick_CTRL_ENABLE_Msk; /* Enable SysTick IRQ and SysTick Timer */
 }
 
-static uint64_t timer_get() { return SysTick->CNT; }
+static void *timer_get(void *value)
+{
+    *(uint64_t *)value = SysTick->CNT;
+
+    return value;
+}
 
 static void (*_timer_compare_func)(void *trigger, void *argument);
 static void *_timer_compare_func_arg = 0;
@@ -91,12 +97,12 @@ static void timer_compare_set(uint64_t ticks, eer_callback_t *callback)
     if ((ticks - 1) > SysTick_LOAD_RELOAD_Msk)
         return; /* Reload value impossible */
 
-    _timer_compare_func     = callback->method;
+    _timer_compare_func     = (void (*)(void *, void *))callback->method;
     _timer_compare_func_arg = callback->argument;
 
     SysTick->CMP = ticks - 1; /* set reload register */
     PFIC->IENR[((uint32_t)(SysTick_IRQn) >> 5)]
-        = (1 << ((uint32_t)(SysTick_IRQn) & 0x1F));
+        = (1 << ((uint32_t)(SysTick_IRQn)&0x1F));
 
     SysTick->CTLR.w
         = SysTick_CTRL_RELOAD_Msk | SysTick_CTRL_CLKSOURCE_Msk
@@ -140,6 +146,6 @@ eer_timer_handler_t eer_hw_timer = {.init        = timer_init,
                                     .get         = timer_get,
                                     .ticks_to_us = timer_ticks_to_us,
                                     .isr         = {
-                                        .enable  = timer_isr_enable,
-                                        .disable = timer_off,
+                                                .enable  = timer_isr_enable,
+                                                .disable = timer_off,
                                     }};

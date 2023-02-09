@@ -149,10 +149,14 @@
 
 /* Skip */
 #define eer_lifecycle_skip(Type, stage)                                        \
-    void Type##_##stage(void *instance) {}
+    void Type##_##stage(void *instance)                                        \
+    {                                                                          \
+    }
 
 #define eer_updatecycle_skip(Type, stage, return_type)                         \
-    return_type Type##_##stage(void *instance, void *next_props_ptr) {}
+    return_type Type##_##stage(void *instance, void *next_props_ptr)           \
+    {                                                                          \
+    }
 
 
 #define eer_will_mount_skip(Type)                                              \
@@ -249,11 +253,14 @@
     x.instance.stage = STAGE_UNMOUNTED;                                        \
     eer_staging(&x.instance, 0);
 
-#define __eer_use(x) eer_staging(&(x.instance), (void *)(uintptr_t)eer_land.state.context);
+#define __eer_use(x)                                                           \
+    eer_staging(&(x.instance), (void *)(uintptr_t)eer_land.state.context);
 #define eer_use(...) EVAL(MAP(__eer_use, __VA_ARGS__))
 
 #define __eer_with(x)                                                          \
-    eer_staging(&(x.instance), (void *)(uintptr_t)eer_current_land.state.context) |
+    eer_staging(&(x.instance),                                                 \
+                (void *)(uintptr_t)eer_current_land.state.context)             \
+        |
 #define eer_with(...)                                                          \
     for (union eer_land eer_current_land = eer_land;                           \
          !eer_current_land.state.finished;                                     \
@@ -264,12 +271,15 @@
 
 #define __eer_init(x) eer_staging(&x.instance, (void *)CONTEXT_UPDATED) |
 #define eer_init(...)                                                          \
-    union eer_land eer_land;                                                   \
+    union eer_land __attribute__((unused)) eer_land;                           \
+    eer_land.flags = 0;                                                        \
+    goto eer_boot;                                                             \
     eer_boot:                                                                  \
     eer_land.state.context = IF_ELSE(HAS_ARGS(__VA_ARGS__))(                   \
         (EVAL(MAP(__eer_init, __VA_ARGS__)) CONTEXT_UPDATED))(CONTEXT_UPDATED)
 
 #define eer_loop(...)                                                          \
+    goto eer_boot;                                                             \
     eer_boot:                                                                  \
     eer_while(__VA_ARGS__)
 

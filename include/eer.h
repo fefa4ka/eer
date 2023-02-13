@@ -372,3 +372,7 @@ enum eer_context eer_staging(eer_t *instance, void *next_props);
 #ifdef HAL_ch573
     #include <ch573.h>
 #endif
+#ifdef HAL_ch32v003
+    #include <ch32v003.h>
+#endif
+

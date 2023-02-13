@@ -7,6 +7,7 @@ find_program(RISCV_OBJDUMP ${CMAKE_CROSSTOOL}-objdump REQUIRED)
 find_program(RISCV_SIZE_TOOL ${CMAKE_CROSSTOOL}-size REQUIRED)
 find_program(RISCV_STRIP ${CMAKE_CROSSTOOL}-strip REQUIRED)
 find_program(RISCV_NM ${CMAKE_CROSSTOOL}-nm REQUIRED)
+find_program(RISCV_GDB ${CMAKE_CROSSTOOL}-gdb REQUIRED)
 
 # toolchain starts with defining mandatory variables
 set(CMAKE_SYSTEM_NAME Generic)
@@ -34,7 +35,7 @@ elseif(CMAKE_BUILD_TYPE MATCHES Debug)
     set(CMAKE_C_FLAGS_DEBUG "-O0 -save-temps -g -gdwarf-3 -gstrict-dwarf")
 endif()
 
-set(MCU ch573 CACHE STRING "RISCV family MCU")
+#set(MCU ch573 CACHE STRING "RISCV family MCU")
 
 # The programmer to use, read avrdude manual for list
 set(PROG_TYPE openocd CACHE STRING "RISCV programmer")
@@ -53,11 +54,20 @@ if(MCU MATCHES "ch573")
         )
 elseif(MCU MATCHES "ch32v003")
     add_compile_options(
+        -std=gnu99
         -march=rv32ec
         -mabi=ilp32e
         -msmall-data-limit=0
-        -msave-restore
+        -mno-save-restore
     )
+
+    add_link_options(
+        -std=gnu99
+        -march=rv32ec
+        -mabi=ilp32e
+        -msmall-data-limit=0
+        -mno-save-restore
+        )
 endif()
 
 add_compile_options(
@@ -66,7 +76,6 @@ add_compile_options(
     -ffunction-sections
     -fdata-sections
     -fno-common
-    -Wunused
     )
 
 

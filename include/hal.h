@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 typedef struct eer_sys_handler {
+    void (*init)(void *config);
     struct {
         void (*set)(void *unit);
         uint32_t (*get)(void *unit);
@@ -59,9 +60,14 @@ enum eer_pin_mode {
     PIN_MODE_OFF,
     PIN_MODE_OUTPUT,
     PIN_MODE_INPUT,
+    PIN_MODE_ANALOG,
+    PIN_MODE_FLOAT,
     PIN_MODE_PULLUP,
     PIN_MODE_PULLDOWN,
-    PIN_MODE_PUSHPULL
+    PIN_MODE_PUSHPULL,
+    PIN_MODE_OPENDRAIN,
+    PIN_FUNC_PUSHPULL,
+    PIN_FUNC_OPENDRAIN
 };
 
 struct eer_io_isr {
@@ -118,6 +124,7 @@ typedef struct eer_ble_handler {
 
 
 // Bit manipulation helpers
+#define bit_pos(bit) (1 << bit)
 #define bit_value(data, bit) ((data >> bit) & 1) // Return Data.Y value
 #define bit_set(data, bit)   data |= (1 << bit)  // Set Data.Y to 1
 #define bit_flip(data, bit)  data ^= (1 << bit)  // Set Data.Y to ! Data.Y

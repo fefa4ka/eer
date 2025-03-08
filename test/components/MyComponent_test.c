@@ -48,17 +48,17 @@ int MyComponent_getValue(eer_t *instance) {
 }
 
 Test(MyComponent, lifecycle) {
-  MyComponent(myComponent, _({.value = 42}));
+  eer_define(MyComponent, myComponent, _({.value = 42}), _({0}));
   
   ignite(&myComponent);
-  loop(&myComponent.instance) {
+  loop(myComponent) {
     // Verify initial state
-    cr_assert_eq(eer_state(MyComponent, myComponent, initialized), true);
-    cr_assert_eq(eer_state(MyComponent, myComponent, value), 42);
-    cr_assert_eq(eer_state(MyComponent, myComponent, updated), false);
+    cr_assert_eq(eer_state(MyComponent, &myComponent, initialized), true);
+    cr_assert_eq(eer_state(MyComponent, &myComponent, value), 42);
+    cr_assert_eq(eer_state(MyComponent, &myComponent, updated), false);
 
     // Update component
-    apply(MyComponent, &myComponent.instance, _({.value = 123}));
+    apply(MyComponent, myComponent, _({.value = 123}));
     
     // Verify update
     cr_assert_eq(eer_state(MyComponent, myComponent, value), 123);

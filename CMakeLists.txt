@@ -11,8 +11,9 @@ option(PLATFORM "Target platform (simulation or native)" simulation)
 include_directories(include)
 
 # Third-party dependencies
-set(Criterion_DIR "/opt/homebrew/Cellar/criterion/2.4.2_2")
+set(Criterion_DIR "/opt/homebrew/opt/criterion/lib/cmake/Criterion")
 find_package(Criterion REQUIRED)
+message(STATUS "Criterion status: ${Criterion_FOUND} ${Criterion_INCLUDE_DIRS} ${Criterion_LIBRARIES}")
 
 # Test executable
 add_executable(simulator

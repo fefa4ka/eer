@@ -22,19 +22,26 @@ A lightweight framework for building reactive, component-based embedded systems.
 ```c
 #include <eer.h>
 #include <eers_app.h>
-#include "MyComponent.h"
+#include "hal/gpio.h"
 
-/* Initialize the component with some initial props */
-MyComponent(myComponentInstance, _({
-  .value = 42
+// Define a LED component
+EER_COMP(Blinker, ({
+    .gpio = hw_pin(A, 0),
+    .interval = 1000
 }));
 
 void main() {
-    loop(myComponentInstance, ...) {
-        apply(MyComponent, myComponentInstance, _({
-            .value = value
-        }))
-    }   
+    ignite(Blinker); // Initialize components
+    
+    loop(Blinker) { // Main event loop
+        // Toggle LED every interval
+        apply(Blinker, _({
+            .gpio.level = !eer_state(Blinker, Blinker)->level
+        }));
+        
+        // Schedule next toggle
+        eer_hw_systick_delay(Blinker.props.interval);
+    }
 }
 ```
 

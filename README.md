@@ -4,13 +4,20 @@ A lightweight framework for building reactive, component-based embedded systems.
 
 ## Key Features
 
-- 🧩 Component-based architecture
-- ⚡ Event-driven lifecycle management
-- 🔄 Automatic reactivity system
-- 🛠️ Hardware abstraction layer
-- 📦 Memory-efficient design for constrained environments
+- 🧩 Component-based architecture with finite state machines
+- ⚡ Event-driven lifecycle management with ISR-safe operations
+- 🔄 Automatic reactivity system with dependency tracking
+- 🛠️ Hardware abstraction layer for portable peripherals
+- 📦 Memory-efficient design (<2KB RAM typical usage)
+- ⏱️ Deterministic execution with cycle-counted operations
+- 🔒 Thread-safe primitives for RTOS integration
 
 ## Getting Started
+
+### Prerequisites
+- ARM GCC toolchain (9-2020-q2-update recommended)
+- CMake 3.12+ for build configuration
+- Segger J-Link tools for flashing/debugging
 
 ```c
 #include <eer.h>
@@ -93,6 +100,24 @@ int MyComponent_getValue(eer_t *instance) {
 ```
 
 
-## License
+## Documentation
 
-MIT Licensed. See LICENSE file for details.
+### Core Concepts
+- **Components**: Encapsulated units of functionality with props/state
+- **Lifecycle Hooks**: will_mount(), did_update(), etc for state management
+- **Reactivity System**: Automatic dependency tracking and propagation
+- **Hardware Abstraction**: Uniform interface for peripherals (GPIO, I2C, etc)
+
+### API Reference
+- Component lifecycle macros (`WILL_MOUNT`, `DID_UPDATE`, etc)
+- Hardware abstraction layer (hal/gpio.h, hal/i2c.h)
+- Memory management utilities (pool allocator, circular buffers)
+
+### Simulation Example
+```bash
+# Build and run desktop simulation
+cmake -B build -DPLATFORM=simulation
+cmake --build build && ./build/simulator
+```
+
+## License

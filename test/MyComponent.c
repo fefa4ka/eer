@@ -26,6 +26,10 @@ WILL_MOUNT(MyComponent) {
 
 WILL_UPDATE(MyComponent) { state->updated = false; }
 
+SHOULD_UPDATE(MyComponent) {
+    return true; // Always update by default
+}
+
 RELEASE(MyComponent) { state->value = props->value; }
 
 DID_UPDATE(MyComponent) { state->updated = true; }

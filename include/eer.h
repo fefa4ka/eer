@@ -98,8 +98,8 @@
                                           Type##_state_t *state)
 #endif
 
-#define eer_lifecycle_prepare(Type, instance, stage) eer_hw_isr_disable()
-#define eer_lifecycle_finish(Type, instance, stage)  eer_hw_isr_enable()
+#define eer_lifecycle_prepare(Type, instance, stage) //eer_hw_isr_disable()
+#define eer_lifecycle_finish(Type, instance, stage)  //#eer_hw_isr_enable()
 
 #define eer_lifecycle(Type, stage)                                             \
     eer_lifecycle_header(Type, stage);                                         \
@@ -380,24 +380,6 @@ typedef struct eer {
     void (*did_mount)(void *instance);
     void (*did_update)(void *instance);
     void (*did_unmount)(void *instance);
-
-#ifdef PROFILING
-    PROFILING_STRUCT
-#endif
 } eer_t;
 
 enum eer_context eer_staging(eer_t *instance, void *next_props);
-
-#ifdef HAL_dbg
-    #include <dbg.h>
-#endif
-#ifdef HAL_atmega328p
-    #include <avr.h>
-#endif
-#ifdef HAL_ch573
-    #include <ch573.h>
-#endif
-#ifdef HAL_ch32v003
-    #include <ch32v003.h>
-#endif
-

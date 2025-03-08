@@ -15,32 +15,25 @@ A lightweight framework for building reactive, component-based embedded systems.
 ## Getting Started
 
 ### Prerequisites
-- ARM GCC toolchain (9-2020-q2-update recommended)
 - CMake 3.12+ for build configuration
-- Segger J-Link tools for flashing/debugging
 
 ```c
 #include <eer.h>
 #include <eers_app.h>
-#include "hal/gpio.h"
 
-// Define a LED component
-EER_COMP(Blinker, ({
-    .gpio = hw_pin(A, 0),
-    .interval = 1000
+#include <MyComponent.h>
+
+/* Initialize the component with some initial props */
+MyComponent(myComponentInstance, _({
+  .value = 42
 }));
 
 void main() {
-    ignite(Blinker); // Initialize components
-    
-    loop(Blinker) { // Main event loop
-        // Toggle LED every interval
-        apply(Blinker, _({
-            .gpio.level = !eer_state(Blinker, Blinker)->level
+    loop() { 
+        /* Apply new properties */
+        apply(MyComponent, myComponentInstance, _({
+          .value = 123
         }));
-        
-        // Schedule next toggle
-        eer_hw_systick_delay(Blinker.props.interval);
     }
 }
 ```

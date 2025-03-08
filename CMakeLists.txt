@@ -7,22 +7,17 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 # Configuration options
 option(PLATFORM "Target platform (simulation or native)" simulation)
 
+# Third-party dependencies
+list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 # Include directories
 include_directories(include)
 
-# Third-party dependencies
-set(Criterion_DIR "/opt/homebrew/opt/criterion/lib/cmake/Criterion")
-find_package(Criterion REQUIRED)
-message(STATUS "Criterion status: ${Criterion_FOUND} ${Criterion_INCLUDE_DIRS} ${Criterion_LIBRARIES}")
+# Add sources
+add_subdirectory (src)
 
-# Test executable
-add_executable(simulator
-  test/main.c
-  test/components/MyComponent_test.c
-  src/eer.c
-)
-
-target_link_libraries(simulator PRIVATE Criterion::criterion)
-
-# Installation (if needed)
-install(TARGETS simulator DESTINATION bin)
+# if (ENABLE_TESTS)
+  # Add tests
+  enable_testing ()
+  add_subdirectory (test)
+# endif ()

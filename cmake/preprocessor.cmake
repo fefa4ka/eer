@@ -1,4 +1,3 @@
-# Preprocessing
 function(add_c_preprocessor_command)
     # Add custom command to run C preprocessor.
     #
@@ -32,37 +31,38 @@ function(add_c_preprocessor_command)
 endfunction()
 
 function(apply_preprocessor_to_sources)
-    # Apply the preprocessor to a list of source files.
-    #
-    # Arguments
-    #   SOURCES        list of source files
-    #   TARGET         CMake target to inherit compile definitions, include directories, and compile options
-
     set(one_value_args TARGET)
     set(multi_value_args SOURCES)
     cmake_parse_arguments(PP "" "${one_value_args}" "${multi_value_args}" ${ARGN})
 
     foreach(SOURCE ${PP_SOURCES})
         get_filename_component(SOURCE_NAME ${SOURCE} NAME_WE)
+        set(SOURCE_PREPROCESSED ${CMAKE_BINARY_DIR}/${SOURCE_NAME}.i)
+        set(SOURCE_CLEANED ${CMAKE_BINARY_DIR}/${SOURCE_NAME}.eu.c)
+        set(SOURCE_FORMATTED ${CMAKE_BINARY_DIR}/${SOURCE_NAME}.e.c)
+
         add_c_preprocessor_command(
-            OUTPUT ${SOURCE_NAME}.i
+            OUTPUT ${SOURCE_PREPROCESSED}
             SOURCE ${SOURCE}
             TARGET ${PP_TARGET}
         )
-        add_custom_command(
-            TARGET ${PP_TARGET}
-            PRE_BUILD
-            COMMAND grep "^[^\\#].*\$ " ${SOURCE_NAME}.i > ${SOURCE_NAME}.eu.c
-            COMMENT "Cleaning preprocessed file"
-            DEPENDS ${SOURCE_NAME}.i
-        )
-        add_custom_command(
-            TARGET ${PP_TARGET}
-            PRE_BUILD
-            COMMAND clang-format ${SOURCE_NAME}.eu.c > ${SOURCE_NAME}.e.c
-            COMMENT "Formatting preprocessed file"
-            DEPENDS ${SOURCE_NAME}.eu.c
-        )
-    endforeach()
-endfunction()
 
+        add_custom_command(
+            OUTPUT ${SOURCE_CLEANED}
+            COMMAND grep "^[^\\#].*\$ " ${SOURCE_PREPROCESSED} > ${SOURCE_CLEANED}
+            COMMENT "Cleaning preprocessed file ${SOURCE_PREPROCESSED}"
+            DEPENDS ${SOURCE_PREPROCESSED}
+        )
+
+        add_custom_command(
+            OUTPUT ${SOURCE_FORMATTED}
+            COMMAND clang-format ${SOURCE_CLEANED} > ${SOURCE_FORMATTED}
+            COMMENT "Formatting preprocessed file ${SOURCE_CLEANED}"
+            DEPENDS ${SOURCE_CLEANED}
+        )
+
+        list(APPEND GENERATED_SOURCES ${SOURCE_FORMATTED})
+    endforeach()
+
+    set(PP_GENERATED_SOURCES ${GENERATED_SOURCES} PARENT_SCOPE)
+endfunction()

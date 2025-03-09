@@ -114,7 +114,9 @@ bool eer_dump_usage()
         printf("\n\n");
     }
 
+#ifndef PROFILING
     log_clean();
+#endif
 
     return eer_stop;
 }

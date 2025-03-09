@@ -1,6 +1,7 @@
 #pragma once
 
 #include "magic.h"
+#include "interface.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -322,7 +323,7 @@
     for (union eer_land eer_land                                               \
          = {.state = {IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(MAP(                \
                 __eer_init, __VA_ARGS__)) CONTEXT_SAME))(CONTEXT_UPDATED)}};   \
-         eer_land.state.context;                                               \
+         !eer_land.state.unmounted && eer_land.state.context;                                               \
          eer_land.state.context = IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(        \
              MAP(__eer_init, __VA_ARGS__)) CONTEXT_SAME))(CONTEXT_UPDATED))
 

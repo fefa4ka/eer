@@ -9,27 +9,42 @@ option(PROFILING "Enable profiling" OFF)
 option(PLATFORM "Target platform (simulation or native)" simulation)
 
 # Third-party dependencies
-list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Include directories
 include_directories(include)
 
 # Add sources
-add_library (eer src/eer.c)
+add_library(eer src/eer.c)
 set_property(TARGET eer PROPERTY C_STANDARD 99)
 
 if(PROFILING)
-    message("Profiling enabled")
-    add_library(profiling STATIC profiler/profiler.c profiler/hash.c profiler/log.c)
-    target_include_directories(profiling PUBLIC profiler)
-    target_link_libraries(eer profiling)
-    target_compile_definitions(profiling PUBLIC PROFILING)
+  message("Profiling enabled")
+  add_library(profiling STATIC profiler/profiler.c profiler/hash.c
+                               profiler/log.c)
+  target_include_directories(profiling PUBLIC profiler)
+  target_link_libraries(eer profiling)
+  target_compile_definitions(profiling PUBLIC PROFILING)
 endif()
-                      
 
-# if (ENABLE_TESTS)
+if(ENABLE_TESTS)
   # Add tests
-  enable_testing ()
-  add_subdirectory (test)
+  include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/preprocessor.cmake)
+  enable_testing()
+  # List of test source files
+  set(TEST_SOURCES test/MyComponent.c
+   # Add other test source files here
+  )
 
-# endif ()
+  # Apply the preprocessor to each test source file
+  apply_preprocessor_to_sources(SOURCES ${TEST_SOURCES} TARGET eer)
+  add_custom_target(GenerateSources ALL DEPENDS ${GENERATED_FILES})
+  # Create executables from preprocessed files
+  foreach(SOURCE ${TEST_SOURCES})
+    get_filename_component(SOURCE_NAME ${SOURCE} NAME_WE)
+    add_executable(${SOURCE_NAME} ${CMAKE_BINARY_DIR}/${SOURCE_NAME}.e.c)
+    add_dependencies(${SOURCE_NAME} GenerateSources)
+    target_link_libraries(${SOURCE_NAME} eer)
+    add_test(NAME ${SOURCE_NAME} COMMAND ${SOURCE_NAME})
+  endforeach()
+endif()

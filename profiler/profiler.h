@@ -148,6 +148,8 @@ struct eer_hal_calls {
     eer_land.state.context = IF_ELSE(HAS_ARGS(__VA_ARGS__))(                   \
         (EVAL(MAP(__eer_init, __VA_ARGS__)) CONTEXT_UPDATED))(CONTEXT_UPDATED)
 
+
+
 #undef eer_loop
 #define eer_loop(...)                                                          \
     profiler_init();                                                           \

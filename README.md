@@ -118,14 +118,19 @@ DID_MOUNT(MyComponent) {
 - `DID_UNMOUNT(Type)` - Called when a component is unmounted
 
 #### Event Loop
+
+There are two ways to create an event loop in the EER framework:
+
+**Option 1: Using `loop`**
 - `loop(...)` - Start an infinite for-loop with component initialization (checks for `unmounted` flag)
+- This is the recommended approach for most applications
 
-Alternatively, you can use the following functions:
-- `ignite(...)` - Alternative approach: starts a goto-based infinite loop with component initialization
-- `terminate` - Exit the event loop
-- `halt(code)` - Exit the event loop with a return code
+**Option 2: Using `ignite`/`terminate`/`halt`**
+- `ignite(...)` - Starts a goto-based infinite loop with component initialization
+- `terminate` - Exit the current iteration of the event loop
+- `halt(code)` - Exit the event loop completely with a return code
 
-**Note:** You should use either `loop` or the `ignite`/`halt` pair, not both together.
+**Important:** Choose one approach for your application. Do not mix `loop` with `ignite`/`terminate`/`halt` in the same codebase.
 
 #### Component Interaction
 - `apply(Type, instance, props)` - Apply new props to a component

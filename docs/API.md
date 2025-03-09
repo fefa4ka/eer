@@ -122,38 +122,57 @@ eer_withstate(MyComponent, myComponent, _({
 
 ## Event Loop
 
-### `loop(...)`
-Start the main event loop.
+The EER framework provides two different approaches to creating an event loop. Choose the one that best fits your application style.
+
+### Approach 1: Using `loop`
+
+#### `loop(...)`
+Start the main event loop using a for-loop construct. This is the recommended approach for most applications.
 
 ```c
 loop(component1, component2) {
-  // Loop body
+  // Loop body - this code runs on each iteration
+  
+  // Components are automatically initialized and updated
 }
 ```
 
-### `ignite(...)`
-Initialize the event loop with components.
+### Approach 2: Using `ignite`/`terminate`/`halt`
+
+#### `ignite(...)`
+Initialize the event loop with components using a goto-based approach.
 
 ```c
 ignite(component1, component2);
+
+// Code here runs on each iteration
+
+if (someCondition) {
+  terminate; // Skip to next iteration
+}
+
+if (shouldExit) {
+  halt(0); // Exit the program with return code 0
+}
 ```
-         
 
-### `halt(code)`
-Exit the event loop started with `ignite` with a return code.
-
-```c
-halt(0);
-```
-
-### `terminate`
-Exit the current `ignite` loop iteration.
+#### `terminate`
+Exit the current `ignite` loop iteration and start the next one.
 
 ```c
 if (condition) {
-  terminate;
+  terminate; // Skip to next iteration
 }
 ```
+
+#### `halt(code)`
+Exit the event loop started with `ignite` completely, with a return code.
+
+```c
+halt(0); // Exit with return code 0
+```
+
+**Important:** Choose one approach for your application. Do not mix `loop` with `ignite`/`terminate`/`halt` in the same codebase.
 
 ## Component Interaction
 

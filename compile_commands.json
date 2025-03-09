@@ -1,0 +1,26 @@
+[
+{
+  "directory": "/Users/fefa4ka/Documents/my/eer-lite/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc  -I/Users/fefa4ka/Documents/my/eer-lite/include -I/Users/fefa4ka/Documents/my/eer-lite/profiler -g -std=gnu11 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.1 -o CMakeFiles/profiling.dir/profiler/profiler.c.o -c /Users/fefa4ka/Documents/my/eer-lite/profiler/profiler.c",
+  "file": "/Users/fefa4ka/Documents/my/eer-lite/profiler/profiler.c",
+  "output": "CMakeFiles/profiling.dir/profiler/profiler.c.o"
+},
+{
+  "directory": "/Users/fefa4ka/Documents/my/eer-lite/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc  -I/Users/fefa4ka/Documents/my/eer-lite/include -I/Users/fefa4ka/Documents/my/eer-lite/profiler -g -std=gnu11 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.1 -o CMakeFiles/profiling.dir/profiler/log.c.o -c /Users/fefa4ka/Documents/my/eer-lite/profiler/log.c",
+  "file": "/Users/fefa4ka/Documents/my/eer-lite/profiler/log.c",
+  "output": "CMakeFiles/profiling.dir/profiler/log.c.o"
+},
+{
+  "directory": "/Users/fefa4ka/Documents/my/eer-lite/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc  -I/Users/fefa4ka/Documents/my/eer-lite/include -I/Users/fefa4ka/Documents/my/eer-lite/profiler -g -std=gnu99 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.1 -o CMakeFiles/eer.dir/src/eer.c.o -c /Users/fefa4ka/Documents/my/eer-lite/src/eer.c",
+  "file": "/Users/fefa4ka/Documents/my/eer-lite/src/eer.c",
+  "output": "CMakeFiles/eer.dir/src/eer.c.o"
+},
+{
+  "directory": "/Users/fefa4ka/Documents/my/eer-lite/build/test",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc  -I/Users/fefa4ka/Documents/my/eer-lite/include -I/Users/fefa4ka/Documents/my/eer-lite/profiler -g -std=gnu99 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.1 -o CMakeFiles/MyComponent.dir/MyComponent.c.o -c /Users/fefa4ka/Documents/my/eer-lite/test/MyComponent.c",
+  "file": "/Users/fefa4ka/Documents/my/eer-lite/test/MyComponent.c",
+  "output": "test/CMakeFiles/MyComponent.dir/MyComponent.c.o"
+}
+]

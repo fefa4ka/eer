@@ -1,2 +1,4 @@
 .aider*
+.cache/
+compiler_commands.json
 build/

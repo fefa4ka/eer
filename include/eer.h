@@ -99,7 +99,7 @@
 #endif
 
 #define eer_lifecycle_prepare(Type, instance, stage) //eer_hw_isr_disable()
-#define eer_lifecycle_finish(Type, instance, stage)  //#eer_hw_isr_enable()
+#define eer_lifecycle_finish(Type, instance, stage)  //eer_hw_isr_enable()
 
 #define eer_lifecycle(Type, stage)                                             \
     eer_lifecycle_header(Type, stage);                                         \
@@ -337,6 +337,12 @@
         return code;                                                           \
     }
 
+
+#ifdef PROFILING
+    #include "profiler.h"
+#endif
+
+
 enum eer_context { CONTEXT_SAME, CONTEXT_UPDATED, CONTEXT_BLOCKED };
 
 union eer_land {
@@ -380,6 +386,10 @@ typedef struct eer {
     void (*did_mount)(void *instance);
     void (*did_update)(void *instance);
     void (*did_unmount)(void *instance);
+
+#ifdef PROFILING 
+    PROFILING_STRUCT
+#endif
 } eer_t;
 
 enum eer_context eer_staging(eer_t *instance, void *next_props);

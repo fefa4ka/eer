@@ -10,6 +10,7 @@
 #include <eer_comp.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <time.h>
 
 // Define a component with full lifecycle implementation
 typedef struct {

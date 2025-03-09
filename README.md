@@ -129,12 +129,6 @@ DID_MOUNT(MyComponent) {
 - `use(...)` - Use components in the current context
 - `with(...)` - Create a new context with specified components
 
-#### Bit Manipulation Utilities
-- `bit_value(data, bit)` - Get the value of a specific bit
-- `bit_set(data, bit)` - Set a specific bit to 1
-- `bit_flip(data, bit)` - Toggle a specific bit
-- `bit_clear(data, bit)` - Clear a specific bit to 0
-
 ### Building and Testing
 
 #### Build Configuration

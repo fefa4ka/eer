@@ -5,10 +5,10 @@
  * with an early exit condition.
  */
 
-#include "test.h"
 #include <eer.h>
 #include <eer_app.h>
 #include <eer_comp.h>
+#include "test.h"
 #include <stdio.h>
 #include <unistd.h>
 
@@ -66,7 +66,7 @@ void after_early_exit_update(void *data) {
 /* Test function that uses ignite/halt with early exit */
 int run_early_exit_test() {
   // Initialize the component
-  ignite(earlyExitComponent);
+  ignite();
   
   // Update component
   apply(EarlyExitComponent, earlyExitComponent, 

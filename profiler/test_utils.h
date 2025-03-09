@@ -1,6 +1,5 @@
 #pragma once
 
-#include <eer.h>
 #include <stdbool.h>
 
 // Loop event types

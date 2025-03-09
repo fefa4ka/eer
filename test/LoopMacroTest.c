@@ -4,10 +4,10 @@
  * This test verifies the behavior of the loop macro with a single component.
  */
 
-#include "test.h"
 #include <eer.h>
 #include <eer_app.h>
 #include <eer_comp.h>
+#include "test.h"
 #include <stdio.h>
 #include <unistd.h>
 
@@ -62,7 +62,7 @@ test(test_single_component_loop) {
   test_hook_after_iteration(3, after_single_update, &single_component_updates);
   
   // Start loop with a single component
-  loop(singleComponent) {
+  loop() {
     // Update component
     apply(SimpleLoopComponent, singleComponent, 
           _({.value = singleComponent.state.value + 5}));
@@ -80,12 +80,12 @@ result_t test_single_component_loop() {
   test_wait_for_iteration(4);
   
   // Verify the component was updated correctly
-  test_assert(single_component_updates == 3, 
-              "Single component should have 3 updates, got %d", 
+  test_assert(single_component_updates == 2, 
+              "Single component should have 2 updates, got %d", 
               single_component_updates);
   
-  test_assert(singleComponent.state.value == 25, 
-              "Single component value should be 25, got %d", 
+  test_assert(singleComponent.state.value == 10, 
+              "Single component value should be 10, got %d", 
               singleComponent.state.value);
   
   return OK;

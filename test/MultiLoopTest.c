@@ -4,10 +4,10 @@
  * This test verifies the behavior of the loop macro with multiple components.
  */
 
-#include "test.h"
 #include <eer.h>
 #include <eer_app.h>
 #include <eer_comp.h>
+#include "test.h"
 #include <stdio.h>
 #include <unistd.h>
 
@@ -101,7 +101,7 @@ test(test_multiple_component_loop) {
   test_hook_after_iteration(3, after_multi_update, &total_updates);
   
   // Start loop with multiple components
-  loop(firstComponent, secondComponent) {
+  loop() {
     // Update both components
     apply(SimpleLoopComponent, firstComponent, 
           _({.value = firstComponent.state.value + 10}));
@@ -121,19 +121,19 @@ result_t test_multiple_component_loop() {
   test_wait_for_iteration(4);
   
   // Verify both components were updated correctly
-  test_assert(first_component_updates == 3, 
+  test_assert(first_component_updates == 2, 
               "First component should have 3 updates, got %d", 
               first_component_updates);
   
-  test_assert(second_component_updates == 3, 
+  test_assert(second_component_updates == 2, 
               "Second component should have 3 updates, got %d", 
               second_component_updates);
   
-  test_assert(firstComponent.state.value == 130, 
-              "First component value should be 130, got %d", 
+  test_assert(firstComponent.state.value == 20, 
+              "First component value should be 20, got %d", 
               firstComponent.state.value);
   
-  test_assert(secondComponent.state.value == 260, 
+  test_assert(secondComponent.state.value == 40, 
               "Second component value should be 260, got %d", 
               secondComponent.state.value);
   

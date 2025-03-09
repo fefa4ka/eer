@@ -7,7 +7,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
-
+#include "test_utils.h"
 #include "log.h"
 
 #define MAX_TABLE_SIZE 10007 // Prime Number for hash table
@@ -120,18 +120,23 @@ struct eer_hal_calls {
 #undef eer_loop
 #define eer_loop(...)                                                          \
   profiler_init();                                                             \
+  eer_execute_hooks(EER_LOOP_BEFORE_START);                                    \
   eer_boot:                                                                    \
-  eer_while(__VA_ARGS__)
+  eer_while(__VA_ARGS__)                                                      
 
 #undef eer_terminate
 #define eer_terminate                                                          \
-  if (!eer_land.state.unmounted && eer_step())                                 \
-    goto eer_boot;
+  if (!eer_land.state.unmounted && eer_step()) {                               \
+    eer_increment_iteration();                                                 \
+    goto eer_boot;                                                             \
+  }
 
 #undef eer_halt
 #define eer_halt(code)                                                         \
-  if (!eer_land.state.unmounted && eer_step())                                 \
+  if (!eer_land.state.unmounted && eer_step()) {                               \
+    eer_increment_iteration();                                                 \
     goto eer_boot;                                                             \
+  }                                                                            \
   {                                                                            \
     return code;                                                               \
   }

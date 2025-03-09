@@ -1,8 +1,8 @@
-#include "test.h"
 #include "test_utils.h"
 #include <eer.h>
 #include <eer_app.h>
 #include <eer_comp.h>
+#include "test.h"
 #include <stdio.h>
 
 // Define a simple component for testing

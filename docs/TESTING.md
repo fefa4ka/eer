@@ -17,7 +17,7 @@ The testing framework uses a multi-threaded approach to test components:
 
 ### `test(...)`
 
-The `test(...)` macro is the primary entry point for defining tests. It can accept multiple test functions that will run simultaneously.
+The `test(...)` macro is the primary entry point for defining tests. It can accept multiple test functions that will run simultaneously. Only single `test` function is allowed.
 
 ```c
 test(test_function1, test_function2, test_function3) {

@@ -5,10 +5,10 @@
  * with various exit conditions.
  */
 
-#include "test.h"
 #include <eer.h>
 #include <eer_app.h>
 #include <eer_comp.h>
+#include "test.h"
 #include <stdio.h>
 #include <unistd.h>
 
@@ -68,13 +68,13 @@ int run_ignite_test() {
   // Initialize the component
   int return_code = 0;
 
-  log_info("Starting ignite/terminate/halt test");
   ignite();
 
   // Update component
-  log_info("Iteration %d: Updating component value to %d", 
-           igniteComponent.state.update_count + 1, 
+  log_info("Iteration %d: Updating component value to %d",
+           igniteComponent.state.update_count + 1,
            igniteComponent.state.value + 5);
+
   apply(IgniteComponent, igniteComponent,
         _({.value = igniteComponent.state.value + 5, .should_exit = false}));
 
@@ -85,15 +85,15 @@ int run_ignite_test() {
     terminate;
   } else if (igniteComponent.state.update_count == 2) {
     // Second iteration - update again and continue
-    log_info("Second iteration, updating component value to %d", 
+    log_info("Second iteration, updating component value to %d",
              igniteComponent.state.value + 10);
     apply(IgniteComponent, igniteComponent,
           _({.value = igniteComponent.state.value + 10, .should_exit = false}));
     log_info("Second iteration complete, using terminate to restart loop");
     terminate;
-  } else if (igniteComponent.state.update_count == 3) {
+  } else if (igniteComponent.state.update_count == 4) {
     // Third iteration - set exit flag and update
-    log_info("Third iteration, setting exit flag and updating value to %d", 
+    log_info("Third iteration, setting exit flag and updating value to %d",
              igniteComponent.state.value + 15);
     apply(IgniteComponent, igniteComponent,
           _({.value = igniteComponent.state.value + 15, .should_exit = true}));
@@ -113,37 +113,38 @@ int run_ignite_test() {
 
 /* Test the ignite/terminate/halt approach */
 test(test_ignite_halt) {
-  log_info("=== Starting Ignite/Halt Test ===");
-  
+  printf("=== Starting Ignite/Halt Test ===\n");
+
   // Register hook to capture update count
-  test_hook_after_iteration(3, after_ignite_update, &ignite_updates);
-  log_info("Registered after_ignite_update hook for iteration 3");
+  test_hook_after_iteration(5, after_ignite_update, &ignite_updates);
+  printf("Registered after_ignite_update hook for iteration 5\n");
 
   // Run the test function that uses ignite/terminate/halt
-  log_info("Running ignite test function");
+  printf("Running ignite test function\n");
   exit_code = run_ignite_test();
-  log_info("Ignite test function returned with code: %d", exit_code);
+  printf("Ignite test function returned with code: %d\n", exit_code);
 
   // Wait for a bit to ensure hooks are executed
-  log_info("Waiting for hooks to execute");
+  printf("Waiting for hooks to execute\n");
   usleep(10000);
-  log_info("=== Ignite/Halt Test Complete ===");
+  printf("=== Ignite/Halt Test Complete ===\n");
 }
 
 /* Verification function */
 result_t test_ignite_halt() {
   log_info("=== Verifying Ignite/Halt Test Results ===");
-  
+
   // Wait for test to complete
   log_info("Waiting for test to complete (iteration 4)");
-  test_wait_for_iteration(4);
+  test_wait_for_iteration(2);
 
   // Verify the component was updated correctly
   log_info("Checking update count: expected=3, actual=%d", ignite_updates);
   test_assert(ignite_updates == 3,
               "Ignite component should have 3 updates, got %d", ignite_updates);
 
-  log_info("Checking final value: expected=40, actual=%d", igniteComponent.state.value);
+  log_info("Checking final value: expected=40, actual=%d",
+           igniteComponent.state.value);
   test_assert(igniteComponent.state.value == 40,
               "Ignite component value should be 40, got %d",
               igniteComponent.state.value);

@@ -119,7 +119,7 @@ struct eer_hal_calls {
 #undef eer_define_component
 #define eer_define_component(Type, instance_name)                              \
     {                                                                          \
-        .stage = STAGE_DEFINED, .will_mount = Type##_will_mount,               \
+        .stage = EER_STAGE_DEFINED, .will_mount = Type##_will_mount,               \
         .should_update = Type##_should_update,                                 \
         .will_update = Type##_will_update, .release = Type##_release,          \
         .did_mount = Type##_did_mount, .did_update = Type##_did_update,        \
@@ -146,7 +146,7 @@ struct eer_hal_calls {
     eer_land.flags = 0;                                                        \
     eer_boot:                                                                  \
     eer_land.state.context = IF_ELSE(HAS_ARGS(__VA_ARGS__))(                   \
-        (EVAL(MAP(__eer_init, __VA_ARGS__)) CONTEXT_UPDATED))(CONTEXT_UPDATED)
+        (EVAL(MAP(__eer_init, __VA_ARGS__)) EER_CONTEXT_UPDATED))(EER_CONTEXT_UPDATED)
 
 
 

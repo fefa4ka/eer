@@ -36,12 +36,13 @@
 
 #undef eer_while
 #define eer_while(...)                                                         \
-  for (eer_land = (union eer_land){.state = {IF_ELSE(HAS_ARGS(__VA_ARGS__))(   \
-                                       (EVAL(MAP(__eer_init, __VA_ARGS__))     \
-                                            CONTEXT_SAME))(CONTEXT_UPDATED)}}; \
+  for (eer_land =                                                              \
+           (union eer_land){.state = {IF_ELSE(HAS_ARGS(__VA_ARGS__))((         \
+                                EVAL(MAP(__eer_init, __VA_ARGS__))             \
+                                    EER_CONTEXT_SAME))(EER_CONTEXT_UPDATED)}}; \
        !eer_land.state.unmounted && eer_land.state.context;                    \
-       eer_land.state.context = IF_ELSE(HAS_ARGS(__VA_ARGS__))((               \
-           EVAL(MAP(__eer_init, __VA_ARGS__)) CONTEXT_SAME))(CONTEXT_UPDATED))
+       eer_land.state.context = IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(MAP(      \
+           __eer_init, __VA_ARGS__)) EER_CONTEXT_SAME))(EER_CONTEXT_UPDATED))
 
 #ifndef PROFILING
 #undef eer_loop

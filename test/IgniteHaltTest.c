@@ -67,31 +67,32 @@ int run_ignite_test() {
   // Initialize the component
   ignite(igniteComponent);
   
-  // First iteration - update component
+  // Update component
   apply(IgniteComponent, igniteComponent, 
         _({.value = igniteComponent.state.value + 5, .should_exit = false}));
   
-  // Use terminate to restart the loop
-  terminate;
-  
-  // Second iteration - update component again
-  apply(IgniteComponent, igniteComponent, 
-        _({.value = igniteComponent.state.value + 10, .should_exit = false}));
-  
-  // Use terminate to restart the loop
-  terminate;
-  
-  // Third iteration - set exit flag and update
-  apply(IgniteComponent, igniteComponent, 
-        _({.value = igniteComponent.state.value + 15, .should_exit = true}));
-  
-  // Check if we should exit
-  if (igniteComponent.state.should_exit) {
-    eer_land.state.unmounted = true;
-    return 42; // Return a specific exit code for testing
+  // Check iteration count to determine behavior
+  if (igniteComponent.state.update_count == 1) {
+    // First iteration - continue to next iteration
+    terminate;
+  } else if (igniteComponent.state.update_count == 2) {
+    // Second iteration - update again and continue
+    apply(IgniteComponent, igniteComponent, 
+          _({.value = igniteComponent.state.value + 10, .should_exit = false}));
+    terminate;
+  } else if (igniteComponent.state.update_count == 3) {
+    // Third iteration - set exit flag and update
+    apply(IgniteComponent, igniteComponent, 
+          _({.value = igniteComponent.state.value + 15, .should_exit = true}));
+    
+    // Check if we should exit
+    if (igniteComponent.state.should_exit) {
+      eer_land.state.unmounted = true;
+      return 42; // Return a specific exit code for testing
+    }
   }
   
-  // This should not be reached if exit flag is set
+  // Continue the loop if not exiting
   halt(0);
 }
 

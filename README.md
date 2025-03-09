@@ -132,6 +132,40 @@ There are two ways to create an event loop in the EER framework:
 
 **Important:** Choose one approach for your application. Do not mix `loop` with `ignite`/`terminate`/`halt` in the same codebase.
 
+#### Component Registration
+
+There are multiple equivalent ways to register components with the event loop:
+
+```c
+// Method 1: Pass components directly to loop
+loop(component1, component2) {
+  // Components are automatically initialized
+}
+
+// Method 2: Pass components directly to ignite
+ignite(component1, component2);
+// Components are automatically initialized
+
+// Method 3: Use empty loop and register components with use()
+loop() {
+  use(component1, component2);
+  // Components are registered in this iteration
+}
+```
+
+All three methods achieve the same result: the components are registered with the event loop and their lifecycle methods are called appropriately. The framework internally uses the `eer_staging` function to manage component state transitions regardless of how they are registered.
+
+**How It Works Internally:**
+
+When components are passed to `loop(...)` or `ignite(...)`, the framework:
+1. Creates a context for the components
+2. Calls `eer_staging` on each component with the `EER_CONTEXT_UPDATED` flag
+3. Transitions each component through its lifecycle states (DEFINED → RELEASED → etc.)
+
+When using `use(...)` inside a loop, the same process occurs, just at a different point in the execution flow. The `use` macro calls `eer_staging` on each component with the current context.
+
+Choose the approach that makes the most sense for your application's structure and readability.
+
 #### Component Interaction
 - `apply(Type, instance, props)` - Apply new props to a component
 - `react(Type, instance, props)` - Force a component to react to new props

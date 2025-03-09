@@ -130,12 +130,23 @@ The EER framework provides two different approaches to creating an event loop. C
 Start the main event loop using a for-loop construct. This is the recommended approach for most applications.
 
 ```c
+// Method 1: Register components directly in loop
 loop(component1, component2) {
   // Loop body - this code runs on each iteration
   
   // Components are automatically initialized and updated
 }
+
+// Method 2: Register components with use() inside loop
+loop() {
+  use(component1, component2);
+  // Components are registered in this iteration
+  
+  // Rest of loop body
+}
 ```
+
+Both methods achieve the same result. The first is more concise, while the second allows for conditional component registration.
 
 ### Approach 2: Using `ignite`/`terminate`/`halt`
 
@@ -202,10 +213,24 @@ react(MyComponent, myComponent, _({
 ```
 
 ### `use(...)`
-Use components in the current context.
+Use components in the current context. This registers components with the event loop during execution.
 
 ```c
 use(component1, component2);
+```
+
+This is equivalent to passing components directly to `loop()` or `ignite()`, but can be called at any point in the execution flow. It's useful for conditional component registration:
+
+```c
+loop() {
+  // Always use these components
+  use(alwaysNeededComponent);
+  
+  // Conditionally use other components
+  if (condition) {
+    use(conditionalComponent);
+  }
+}
 ```
 
 ### `with(...)`

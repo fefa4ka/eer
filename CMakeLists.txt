@@ -20,11 +20,10 @@ set_property(TARGET eer PROPERTY C_STANDARD 99)
 
 if(PROFILING)
     message("Profiling enabled")
-    add_library(profiling STATIC profiler/profiler.c profiler/log.c)
+    add_library(profiling STATIC profiler/profiler.c profiler/hash.c profiler/log.c)
     target_include_directories(profiling PUBLIC profiler)
     target_link_libraries(eer profiling)
-    target_compile_definitions(eer PRIVATE PROFILING)
-    target_compile_definitions(profiling PRIVATE PROFILING)
+    target_compile_definitions(profiling PUBLIC PROFILING)
 endif()
                       
 

@@ -147,12 +147,39 @@ ignite(component1, component2);
 
 // Code here runs on each iteration
 
-halt(0); // Restart loop or exit program if `eer_land.state.unmounted == true` 
+if (someCondition) {
+  terminate; // Skip to next iteration
+}
+
+if (shouldExit) {
+  eer_land.state.unmounted = true; // Signal that we want to exit
+}
+
+halt(0); // Either restart loop or exit with return code 0
 ```
 
-`halt()` restarts the loop so should be used after main code has finished.
+**How it works internally:**
+1. `ignite(...)` creates a label called `eer_boot` and initializes components
+2. Your code runs after the `ignite` call
+3. `terminate` is a macro that uses `goto eer_boot` to jump back to the beginning
+4. `halt(code)` checks `eer_land.state.unmounted`:
+   - If `false`: uses `goto eer_boot` to restart the loop
+   - If `true`: returns the provided code, exiting the function
 
-Use `eer_land.state.unmounted` to force the loop to exit.
+The implementation in `eer.h` looks like this:
+```c
+#define eer_terminate                                                          \
+    if (!eer_land.state.unmounted)                                             \
+        goto eer_boot;
+#define eer_halt(code)                                                         \
+    if (!eer_land.state.unmounted)                                             \
+        goto eer_boot;                                                         \
+    {                                                                          \
+        return code;                                                           \
+    }
+```
+
+To exit the loop completely, set `eer_land.state.unmounted = true` before calling `halt()`.
 
 ## Component Interaction
 

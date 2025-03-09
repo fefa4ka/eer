@@ -36,14 +36,6 @@
         eer_t          instance;                                               \
         Type##_props_t props;                                                  \
         Type##_state_t state;                                                  \
-        /* Optional callback functions for hook-based components */            \
-        void (*on_will_mount)(struct Type *self, Type##_props_t *next_props);  \
-        bool (*on_should_update)(struct Type *self, Type##_props_t *next_props); \
-        void (*on_will_update)(struct Type *self, Type##_props_t *next_props); \
-        void (*on_release)(struct Type *self);                                 \
-        void (*on_did_mount)(struct Type *self);                               \
-        void (*on_did_update)(struct Type *self);                              \
-        void (*on_did_unmount)(struct Type *self);                             \
     } Type##_t;                                                                \
     void Type##_will_mount(void *instance, void *next_props);                  \
     bool Type##_should_update(void *instance, void *next_props);               \
@@ -189,22 +181,6 @@
         .state    = instance_state,                                            \
     }
 
-/**
- * @brief Creates a component with specified props and callbacks.
- * 
- * This macro is useful for creating components that use hook-based lifecycle methods.
- * 
- * @param Type The type of the component.
- * @param instance_name The name of the component instance.
- * @param instance_props The initial props for the component.
- * @param ... Callback functions for lifecycle hooks.
- */
-#define eer_withcallbacks(Type, instance_name, instance_props, ...)            \
-    Type##_t instance_name = {                                                 \
-        .instance = eer_define_component(Type, instance_name),                 \
-        .props    = instance_props,                                            \
-        __VA_ARGS__                                                            \
-    }
 
 /** @} */ // end of component_creation group
 

@@ -73,68 +73,51 @@ eer_withprops(LifecycleComponent, lifecycleComponent, _({
   .force_update = false
 }));
 
-// Define a component that uses hook-based lifecycle methods
+// Define a standard component to replace the hook-based one
 typedef struct {
   int value;
-} HookComponent_props_t;
+} StandardComponent_props_t;
 
 typedef struct {
   int value;
-} HookComponent_state_t;
+} StandardComponent_state_t;
 
-eer_header(HookComponent);
+eer_header(StandardComponent);
 
-// Use hook-based lifecycle methods
-WILL_MOUNT_HOOK(HookComponent);
-SHOULD_UPDATE_HOOK(HookComponent);
-WILL_UPDATE_HOOK(HookComponent);
-RELEASE_HOOK(HookComponent);
-DID_MOUNT_HOOK(HookComponent);
-DID_UPDATE_HOOK(HookComponent);
-DID_UNMOUNT_HOOK(HookComponent);
-
-// Callback functions
-void hook_will_mount(HookComponent_t *self, HookComponent_props_t *next_props) {
-  printf("Hook: WILL_MOUNT called\n");
-  self->state.value = self->props.value;
+// Standard lifecycle implementation
+WILL_MOUNT(StandardComponent) {
+  printf("Standard: WILL_MOUNT called\n");
+  state->value = props->value;
 }
 
-bool hook_should_update(HookComponent_t *self, HookComponent_props_t *next_props) {
-  printf("Hook: SHOULD_UPDATE called\n");
-  return self->props.value != next_props->value;
+SHOULD_UPDATE(StandardComponent) {
+  printf("Standard: SHOULD_UPDATE called\n");
+  return props->value != next_props->value;
 }
 
-void hook_will_update(HookComponent_t *self, HookComponent_props_t *next_props) {
-  printf("Hook: WILL_UPDATE called\n");
+WILL_UPDATE(StandardComponent) {
+  printf("Standard: WILL_UPDATE called\n");
 }
 
-void hook_release(HookComponent_t *self) {
-  printf("Hook: RELEASE called\n");
-  self->state.value = self->props.value;
+RELEASE(StandardComponent) {
+  printf("Standard: RELEASE called\n");
+  state->value = props->value;
 }
 
-void hook_did_mount(HookComponent_t *self) {
-  printf("Hook: DID_MOUNT called\n");
+DID_MOUNT(StandardComponent) {
+  printf("Standard: DID_MOUNT called\n");
 }
 
-void hook_did_update(HookComponent_t *self) {
-  printf("Hook: DID_UPDATE called\n");
+DID_UPDATE(StandardComponent) {
+  printf("Standard: DID_UPDATE called\n");
 }
 
-void hook_did_unmount(HookComponent_t *self) {
-  printf("Hook: DID_UNMOUNT called\n");
+DID_UNMOUNT(StandardComponent) {
+  printf("Standard: DID_UNMOUNT called\n");
 }
 
-// Create a hook-based component with callbacks
-eer_withcallbacks(HookComponent, hookComponent, _({.value = 10}),
-  .on_will_mount = hook_will_mount,
-  .on_should_update = hook_should_update,
-  .on_will_update = hook_will_update,
-  .on_release = hook_release,
-  .on_did_mount = hook_did_mount,
-  .on_did_update = hook_did_update,
-  .on_did_unmount = hook_did_unmount
-);
+// Create a standard component with initial props
+eer_withprops(StandardComponent, standardComponent, _({.value = 10}));
 
 // Define a component with minimal lifecycle implementation
 typedef struct {
@@ -169,7 +152,7 @@ int main() {
   printf("=========================\n\n");
 
   // Start the event loop
-  loop(lifecycleComponent, hookComponent, minimalComponent) {
+  loop(lifecycleComponent, standardComponent, minimalComponent) {
     printf("\n--- Iteration ---\n");
     
     // Update the standard component
@@ -177,9 +160,9 @@ int main() {
           _({.value = lifecycleComponent.state.value + 1, 
              .force_update = false}));
     
-    // Update the hook-based component
-    apply(HookComponent, hookComponent,
-          _({.value = hookComponent.state.value + 5}));
+    // Update the standard component
+    apply(StandardComponent, standardComponent,
+          _({.value = standardComponent.state.value + 5}));
     
     // Update the minimal component
     apply(MinimalComponent, minimalComponent,

@@ -13,8 +13,8 @@ The EER Framework is a lightweight component-based system for embedded applicati
 
 ### 1. Code Organization and Consistency
 
-- **Consolidate Header Files**: Reduce duplication between `eer_app.h`, `eer_comp.h`, and `eers.h`
-- **Standardize Naming Conventions**: Ensure consistent naming across macros and functions
+- [x] **Consolidate Header Files**: Reduce duplication between `eer_app.h`, `eer_comp.h`, and `eers.h`
+- [x] **Standardize Naming Conventions**: Ensure consistent naming across macros and functions
 - **Documentation**: Improve inline documentation and examples
 
 ### 2. Performance Optimizations

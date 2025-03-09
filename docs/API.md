@@ -389,6 +389,41 @@ loop() {
 }
 ```
 
+### Component Registration Best Practices
+
+For clearer code organization and better separation of concerns, follow these guidelines:
+
+1. **Pass to `loop()`**: Components that are always active and don't need prop updates every iteration
+   ```c
+   // These components are part of the core loop
+   loop(backgroundComponent, systemComponent) {
+     // Loop body
+   }
+   ```
+
+2. **Use `apply()`**: For components that need explicit prop updates
+   ```c
+   loop() {
+     // Explicitly update this component's props
+     apply(UpdatedComponent, updatedComponent, _({.value = newValue}));
+   }
+   ```
+
+3. **Use `use()`**: For components that are conditionally active
+   ```c
+   loop() {
+     // Only register this component when needed
+     if (condition) {
+       use(conditionalComponent);
+     }
+   }
+   ```
+
+This pattern creates a clearer mental model of your application's structure:
+- Components in `loop()` are "registered" with the event loop for the entire application lifecycle
+- Operations inside the loop body are explicit actions on components
+- Conditional component usage is clearly expressed with `use()`
+
 ### `with(...)`
 Create a new context with specified components, context body updates if components change.
 

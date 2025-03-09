@@ -140,26 +140,35 @@ There are two ways to create an event loop in the EER framework:
 
 #### Component Registration
 
-There are multiple equivalent ways to register components with the event loop:
+There are multiple ways to register components with the event loop, each with a specific purpose:
 
 ```c
-// Method 1: Pass components directly to loop
-loop(component1, component2) {
-  // Components are automatically initialized
+// Method 1: Pass "always active" components directly to loop
+// These components are part of the core loop and don't need prop updates every iteration
+loop(backgroundComponent) {
+  // Loop body
 }
 
-// Method 2: Pass components directly to ignite
-ignite(component1, component2);
-// Components are automatically initialized
-
-// Method 3: Use empty loop and register components with use()
+// Method 2: Use apply() for components that need explicit prop updates
 loop() {
-  use(component1, component2);
-  // Components are registered in this iteration
+  apply(UpdatedComponent, updatedComponent, _({.value = newValue}));
+}
+
+// Method 3: Use use() for components that are conditionally active
+loop() {
+  if (condition) {
+    use(conditionalComponent);
+  }
 }
 ```
 
-All three methods achieve the same result: the components are registered with the event loop and their lifecycle methods are called appropriately. The framework internally uses the `eer_staging` function to manage component state transitions regardless of how they are registered.
+**Recommended Pattern:**
+
+For clearer code and better separation of concerns, follow these guidelines:
+
+1. **Pass to `loop()`**: Components that are always active and don't need prop updates every iteration
+2. **Use `apply()`**: For components that need explicit prop updates
+3. **Use `use()`**: For components that are conditionally active
 
 **How It Works Internally:**
 
@@ -169,8 +178,6 @@ When components are passed to `loop(...)` or `ignite(...)`, the framework:
 3. Transitions each component through its lifecycle states (DEFINED → RELEASED → etc.)
 
 When using `use(...)` inside a loop, the same process occurs, just at a different point in the execution flow. The `use` macro calls `eer_staging` on each component with the current context.
-
-Choose the approach that makes the most sense for your application's structure and readability.
 
 #### Component Interaction
 - `apply(Type, instance, props)` - Apply new props to a component

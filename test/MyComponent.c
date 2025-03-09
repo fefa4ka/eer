@@ -40,18 +40,24 @@ DID_MOUNT(MyComponent) {
 
 MyComponent_new(myComponent, _({.value = 42}));
 
-test(one, two) {
+test(check_my_component) {
   loop() {
     // Update component
     apply(MyComponent, myComponent, _({.value = 123}));
   }
 }
 
-result_t one() {
-  test_assert(0 == 0, "Sensor pin should be off");
-  return OK;
-}
-result_t two() {
-  test_assert(0 == 0, "Sensor pin should be on");
+result_t check_my_component() {
+  test_assert(myComponent.state.initialized == false,
+              "Not Intitialized MyComponent");
+
+  test_assert(myComponent.state.value == 42,
+              "Not Intitialized MyComponent value=%d", myComponent.state.value);
+  usleep(5);
+  test_assert(myComponent.state.initialized == true,
+              "Intitialized MyComponent");
+  test_assert(myComponent.state.value == 123,
+              "Intitialized MyComponent value=%d", myComponent.state.value);
+
   return OK;
 }

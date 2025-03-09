@@ -53,7 +53,8 @@
   log_init();                                                                  \
   eer_hooks_init();                                                            \
   eer_boot:                                                                    \
-  eer_while(__VA_ARGS__)
+  eer_while(__VA_ARGS__);                                                      \
+  eer_execute_hooks(EER_LOOP_BEFORE_START)
 #endif
 
 #define test_program(before, after, ...)                                       \

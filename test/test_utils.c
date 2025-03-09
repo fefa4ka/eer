@@ -79,6 +79,12 @@ void eer_execute_hooks(eer_loop_event_t event) {
     }
 }
 
+// Execute hooks for a specific event with a delay
+void eer_execute_hooks_delayed(eer_loop_event_t event, int delay_ms) {
+    usleep(delay_ms * 1000); // Convert ms to microseconds
+    eer_execute_hooks(event);
+}
+
 // Wait for a specific iteration to complete
 void eer_wait_for_iteration(int iteration) {
     while (eer_current_iteration < iteration) {

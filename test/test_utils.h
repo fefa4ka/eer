@@ -45,6 +45,9 @@ void eer_hook_before_exit(eer_loop_hook_fn hook, void* data);
 // Execute hooks for a specific event
 void eer_execute_hooks(eer_loop_event_t event);
 
+// Execute hooks for a specific event with a delay
+void eer_execute_hooks_delayed(eer_loop_event_t event, int delay_ms);
+
 // Wait for a specific iteration to complete
 void eer_wait_for_iteration(int iteration);
 

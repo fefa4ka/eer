@@ -96,8 +96,8 @@ test(test_loop_hooks) {
   test_hook_after_iteration(2, after_iteration_2_hook, &iteration_2_value);
   test_hook_before_exit(before_exit_hook, &before_exit_value);
 
-  // Start the event loop
-  loop() {
+  // Start the event loop with our component
+  loop(hookTestComponent) {
     // Update the component value on each iteration
     apply(HookTestComponent, hookTestComponent,
           _({.value = hookTestComponent.state.value + 1}));

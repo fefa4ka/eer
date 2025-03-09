@@ -66,25 +66,3 @@ function(apply_preprocessor_to_sources)
     endforeach()
 endfunction()
 
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-    add_c_preprocessor_command(
-      OUTPUT ${PROJECT_NAME}.i
-      SOURCE ${PROJECT_NAME}.c
-      TARGET ${PROJECT_NAME})
-
-    add_custom_command(
-        TARGET ${PROJECT_NAME}
-        PRE_BUILD
-        COMMAND grep "^[^\\#].*\$ " ${PROJECT_NAME}.i > ${PROJECT_NAME}.eu.c
-        COMMENT "Cleaning preprocessed file"
-        DEPENDS ${PROJECT_NAME}.i
-    )
-
-    add_custom_command(
-        TARGET ${PROJECT_NAME}
-        PRE_BUILD
-        COMMAND clang-format ${PROJECT_NAME}.eu.c > ${PROJECT_NAME}.e.c
-        COMMENT "Formating preprocessed file"
-        DEPENDS ${PROJECT_NAME}.eu.c
-        )
-endif()

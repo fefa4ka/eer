@@ -180,5 +180,4 @@ void         eer_signal_handler(int sig);
 unsigned int eer_frame_depth();
 bool         eer_dump_usage();
 uint64_t     eer_step();
-char        *eer_timer_formatted_time(void);
 unsigned int eer_hash_component(char *word);

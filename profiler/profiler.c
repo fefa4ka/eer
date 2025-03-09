@@ -114,9 +114,7 @@ bool eer_dump_usage()
         printf("\n\n");
     }
 
-#ifndef PROFILING
     log_clean();
-#endif
 
     return eer_stop;
 }
@@ -146,32 +144,4 @@ unsigned int eer_hash_component(char *word)
     }
 
     return (hash % MAX_TABLE_SIZE);
-}
-// Returns the local date/time formatted as 2014-03-19 11:11:52.132
-char *eer_timer_formatted_time(void)
-{
-    // Must be static, otherwise won't work
-    static char _retval[37];
-    char        _strtime[20];
-
-    time_t         rawtime;
-    struct tm     *timeinfo;
-    struct timeval tv;
-
-    int millisec;
-
-    time(&rawtime);
-    gettimeofday(&tv, NULL);
-    timeinfo = localtime(&rawtime);
-
-    millisec = lrint(tv.tv_usec / 1000.0);
-    if (millisec >= 1000) {
-        millisec -= 1000;
-        tv.tv_sec++;
-    }
-
-    strftime(_strtime, sizeof(_strtime), "%Y-%m-%d %H:%M:%S", timeinfo);
-    sprintf(_retval, "%s.%03d", _strtime, millisec);
-
-    return _retval;
 }

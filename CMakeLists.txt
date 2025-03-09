@@ -31,4 +31,19 @@ endif()
   # Add tests
   enable_testing ()
   add_subdirectory (test)
+
+  # Include the preprocessor.cmake
+  include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/preprocessor.cmake)
+
+  # List of test source files
+  set(TEST_SOURCES
+      MyComponent.c
+      # Add other test source files here
+  )
+
+  # Apply the preprocessor to each test source file
+  apply_preprocessor_to_sources(
+      SOURCES ${TEST_SOURCES}
+      TARGET eer
+  )
 # endif ()

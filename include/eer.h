@@ -2,6 +2,7 @@
 
 #include "magic.h"
 #include "interface.h"
+#include "eer_comp.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -13,256 +14,7 @@
 // and unmounting. Additionally, it defines macros for accessing a component's 
 // props and state, as well as macros for creating and initializing components.
 
-/*
- *        ┌───────┐  will_mount  ┌────────┐   should_update?  ┌────────┐
- *        │DEFINED├─────────────►│RELEASED├──────────────────►│PREPARED├──┐
- *        └───────┘  release     └────────┘   will_update     └────────┘  │
- *                   did_mount        ▲                        release    │
- *                                    ├───────────────────────────────────┘
- *                                    ▼                        did_update
- *                               ┌─────────┐
- *                               │UNMOUNTED│
- *                               └─────────┘
- */
-
-/**
- * @brief Defines the header for a component of type `Type`.
- * 
- * @param Type The type of the component.
- */
-#define eer_header(Type)                                                       \
-    typedef struct Type {                                                      \
-        eer_t          instance;                                               \
-        Type##_props_t props;                                                  \
-        Type##_state_t state;                                                  \
-    } Type##_t;                                                                \
-    void Type##_will_mount(void *instance, void *next_props);                  \
-    bool Type##_should_update(void *instance, void *next_props);               \
-    void Type##_will_update(void *instance, void *next_props);                 \
-    void Type##_release(void *instance);                                       \
-    void Type##_did_mount(void *instance);                                     \
-    void Type##_did_unmount(void *instance);                                   \
-    void Type##_did_update(void *instance)
-
-#define eer_define_component(Type, name)                                       \
-    {                                                                          \
-        .stage = {EER_STAGE_DEFINED}, .will_mount = Type##_will_mount,         \
-        .should_update = Type##_should_update,                                 \
-        .will_update = Type##_will_update, .release = Type##_release,          \
-        .did_mount = Type##_did_mount, .did_update = Type##_did_update,        \
-    }
-
-/**
- * @brief Defines a pointer to a component of type `Type`.
- * 
- * @param Type The type of the component.
- * @param instance The instance of the component.
- */
-#define eer_self(Type, instance) Type##_t *self = instance
-
-/**
- * @brief Returns the value of the specified attribute of the props of the given instance.
- * 
- * @param Type The type of the component.
- * @param instance The instance of the component.
- * @param attribute The attribute of the props to return.
- */
-#define eer_prop(Type, instance, attribute)                                    \
-    (((Type##_t *)instance)->props.attribute)
-
-/**
- * @brief Returns the value of the specified attribute of the state of the given instance.
- * 
- * @param Type The type of the component.
- * @param instance The instance of the component.
- * @param attribute The attribute of the state to return.
- */
-#define eer_state(Type, instance, attribute)                                   \
-    (((Type##_t *)instance)->state.attribute)
-
-#define eer_from_props(Type, props) (Type##_t *)(props - sizeof(eer_t))
-#define eer_from_state(Type, state)                                            \
-    eer_from_props(state - sizeof(Type##_props_t))
-
-#define eer_instance_state(Type, instance)                                     \
-    ((Type##_state_t *)((instance)->state))
-#define eer_instance_props(Type, instance)                                     \
-    ((Type##_props_t *)((instance)->props))
-
-#if __GNUC__
-    #define eer_lifecycle_header(Type, stage)                                  \
-        static inline void Type##_inline_##stage(                              \
-            eer_t *self, Type##_props_t *props, Type##_state_t *state)
-#else
-    #define eer_lifecycle_header(Type, stage)                                  \
-        inline void Type##_inline_##stage(eer_t *self, Type##_props_t *props,  \
-                                          Type##_state_t *state)
-#endif
-
-#define eer_lifecycle_prepare(Type, instance, stage) //eer_hw_isr_disable()
-#define eer_lifecycle_finish(Type, instance, stage)  //eer_hw_isr_enable()
-
-#define eer_lifecycle(Type, stage)                                             \
-    eer_lifecycle_header(Type, stage);                                         \
-    void Type##_##stage(void *instance)                                        \
-    {                                                                          \
-        eer_self(Type, instance);                                              \
-        eer_lifecycle_prepare(Type, instance, stage);                          \
-        Type##_inline_##stage(&self->instance, &self->props, &self->state);    \
-        eer_lifecycle_finish(Type, instance, stage);                           \
-    }                                                                          \
-    eer_lifecycle_header(Type, stage)
-
-#define eer_selfnext(Type, instance) Type##_props_t *next_props = next_props_ptr
-
-#if __GNUC__
-    #define eer_updatecycle_header(Type, stage, returnType)                    \
-        static inline returnType Type##_inline_##stage(                        \
-            eer_t *self, Type##_props_t *props, Type##_state_t *state,         \
-            Type##_props_t *next_props)
-#else
-    #define eer_updatecycle_header(Type, stage, returnType)                    \
-        inline returnType Type##_inline_##stage(                               \
-            eer_t *self, Type##_props_t *props, Type##_state_t *state,         \
-            Type##_props_t *next_props)
-#endif
-
-#define eer_updatecycle(Type, stage, returnType)                               \
-    eer_updatecycle_header(Type, stage, returnType);                           \
-    returnType Type##_##stage(void *instance, void *next_props_ptr)            \
-    {                                                                          \
-        eer_self(Type, instance);                                              \
-        if (!next_props_ptr)                                                   \
-            next_props_ptr = &self->props;                                     \
-        eer_selfnext(Type, instance);                                          \
-        eer_lifecycle_prepare(Type, instance, stage);                          \
-        returnType result = Type##_inline_##stage(                             \
-            &self->instance, &self->props, &self->state, next_props);          \
-        eer_lifecycle_finish(Type, instance, stage);                           \
-        return result;                                                         \
-    }                                                                          \
-    eer_updatecycle_header(Type, stage, returnType)
-
-#define eer_will_mount(Type)                                                   \
-    eer_updatecycle_header(Type, will_mount, void);                            \
-    void Type##_will_mount(void *instance, void *next_props_ptr)               \
-    {                                                                          \
-        eer_self(Type, instance);                                              \
-        if (!next_props_ptr)                                                   \
-            next_props_ptr = &self->props;                                     \
-        eer_selfnext(Type, instance);                                          \
-        if (&self->props != next_props)                                        \
-            self->props = *next_props;                                         \
-        eer_lifecycle_prepare(Type, instance, will_mount);                     \
-        Type##_inline_will_mount(&self->instance, &self->props, &self->state,  \
-                                 next_props);                                  \
-        eer_lifecycle_finish(Type, instance, will_mount);                      \
-    }                                                                          \
-    eer_updatecycle_header(Type, will_mount, void)
-
-#define eer_will_update(Type)                                                  \
-    eer_updatecycle_header(Type, will_update, void);                           \
-    void Type##_will_update(void *instance, void *next_props_ptr)              \
-    {                                                                          \
-        eer_self(Type, instance);                                              \
-        if (!next_props_ptr)                                                   \
-            next_props_ptr = &self->props;                                     \
-        eer_selfnext(Type, instance);                                          \
-        eer_lifecycle_prepare(Type, instance, will_update);                    \
-        Type##_inline_will_update(&self->instance, &self->props, &self->state, \
-                                  next_props);                                 \
-        eer_lifecycle_finish(Type, instance, will_update);                     \
-        if (&self->props != next_props)                                        \
-            self->props = *next_props;                                         \
-    }                                                                          \
-    eer_updatecycle_header(Type, will_update, void)
-
-#define eer_release(Type)       eer_lifecycle(Type, release)
-#define eer_should_update(Type) eer_updatecycle(Type, should_update, bool)
-#define eer_did_mount(Type)     eer_lifecycle(Type, did_mount)
-#define eer_did_update(Type)    eer_lifecycle(Type, did_update)
-#define eer_did_unmount(Type)   eer_lifecycle(Type, did_unmount)
-
-/* Skip */
-#define eer_lifecycle_skip(Type, stage)                                        \
-    void Type##_##stage(void *instance)                                        \
-    {                                                                          \
-    }
-
-#define eer_updatecycle_skip(Type, stage, return_type)                         \
-    return_type Type##_##stage(void *instance, void *next_props_ptr)           \
-    {                                                                          \
-    }
-
-
-#define eer_will_mount_skip(Type)                                              \
-    void Type##_will_mount(void *instance, void *next_props_ptr)               \
-    {                                                                          \
-        eer_self(Type, instance);                                              \
-        if (next_props_ptr) {                                                  \
-            eer_selfnext(Type, instance);                                      \
-            if (&self->props != next_props)                                    \
-                self->props = *next_props;                                     \
-        }                                                                      \
-    }
-#define eer_will_update_skip(Type)                                             \
-    void Type##_will_update(void *instance, void *next_props_ptr)              \
-    {                                                                          \
-        eer_self(Type, instance);                                              \
-        if (next_props_ptr) {                                                  \
-            eer_selfnext(Type, instance);                                      \
-            if (&self->props != next_props)                                    \
-                self->props = *next_props;                                     \
-        }                                                                      \
-    }
-
-#define eer_release_skip(Type) eer_lifecycle_skip(Type, release)
-#define eer_should_update_skip(Type)                                           \
-    bool Type##_should_update(void *instance, void *next_props_ptr)            \
-    {                                                                          \
-        return true;                                                           \
-    }
-#define eer_did_mount_skip(Type)   eer_lifecycle_skip(Type, did_mount)
-#define eer_did_update_skip(Type)  eer_lifecycle_skip(Type, did_update)
-#define eer_did_unmount_skip(Type) eer_lifecycle_skip(Type, did_unmount)
-
-/* Hooks */
-#define eer_lifecycle_hook(Type, stage, callback)                              \
-    void Type##_##stage(void *instance)                                        \
-    {                                                                          \
-        eer_self(Type, instance);                                              \
-        if (self->callback)                                                    \
-            self->callback(self);                                              \
-    }
-
-#define eer_release_hook(Type)     eer_lifecycle_hook(Type, release)
-#define eer_did_mount_hook(Type)   eer_lifecycle_hook(Type, did_mount)
-#define eer_did_update_hook(Type)  eer_lifecycle_hook(Type, did_update)
-#define eer_did_unmount_hook(Type) eer_lifecycle_hook(Type, did_unmount)
-
-#define eer_withprops(Type, instance_name, instance_props)                     \
-    Type##_t instance_name = {                                                 \
-        .instance = eer_define_component(Type, instance_name),                 \
-        .props    = instance_props,                                            \
-    }
-
-#define eer_withstate(Type, instance_name, instance_state)                     \
-    Type##_t instance_name = {                                                 \
-        .instance = eer_define_component(Type, instance_name),                 \
-        .state    = instance_state,                                            \
-    }
-
-#define eer(Type, name) eer_withprops(Type, name, _({0}))
-
-#define eer_define(Type, instance_name, instance_props, instance_state)        \
-    Type##_t instance_name = {                                                 \
-        .instance = eer_define_component(Type, instance_name),                 \
-        .props    = instance_props,                                            \
-        .state    = instance_state,                                            \
-    }
-
-#define _(...) __VA_ARGS__
-
+/* Component interaction macros */
 #define eer_apply(Type, name, propsValue)                                      \
     if (EER_CONTEXT_UPDATED == eer_land.state.context                          \
         && (EER_STAGE_RELEASED == name.instance.stage.state.step               \
@@ -274,6 +26,7 @@
     } else {                                                                   \
         eer_staging(&name.instance, 0);                                        \
     }
+
 /* Finalize previous step, and full cycle */
 #define eer_react(Type, name, propsValue)                                      \
     {                                                                          \
@@ -305,6 +58,7 @@
              = {.state = {EVAL(MAP(__eer_with, __VA_ARGS__)) EER_CONTEXT_SAME}}; \
              !eer_land.state.finished; eer_land.state.finished = true)
 
+/* Event loop macros */
 #define __eer_init(x) eer_staging(&x.instance, (void *)EER_CONTEXT_UPDATED) |
 #define eer_init(...)                                                          \
     union eer_land __attribute__((unused)) eer_land;                           \
@@ -327,7 +81,6 @@
          eer_land.state.context = IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(        \
              MAP(__eer_init, __VA_ARGS__)) EER_CONTEXT_SAME))(EER_CONTEXT_UPDATED))
 
-
 #define eer_terminate                                                          \
     if (!eer_land.state.unmounted)                                             \
         goto eer_boot;
@@ -338,12 +91,11 @@
         return code;                                                           \
     }
 
-
 #ifdef PROFILING
     #include "profiler.h"
 #endif
 
-
+/* Core types */
 enum eer_context { 
     EER_CONTEXT_SAME, 
     EER_CONTEXT_UPDATED, 

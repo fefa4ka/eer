@@ -1,6 +1,6 @@
 #pragma once
 
 #include "eer_common.h"
+#include "eer_app.h"
 
-/* Additional event loop macro for simplified syntax */
-#define loop eer_loop
+/* This is a simplified header that includes all necessary components */

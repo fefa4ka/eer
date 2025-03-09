@@ -31,6 +31,41 @@ function(add_c_preprocessor_command)
         DEPENDS ${CPP_SOURCE})
 endfunction()
 
+function(apply_preprocessor_to_sources)
+    # Apply the preprocessor to a list of source files.
+    #
+    # Arguments
+    #   SOURCES        list of source files
+    #   TARGET         CMake target to inherit compile definitions, include directories, and compile options
+
+    set(one_value_args TARGET)
+    set(multi_value_args SOURCES)
+    cmake_parse_arguments(PP "" "${one_value_args}" "${multi_value_args}" ${ARGN})
+
+    foreach(SOURCE ${PP_SOURCES})
+        get_filename_component(SOURCE_NAME ${SOURCE} NAME_WE)
+        add_c_preprocessor_command(
+            OUTPUT ${SOURCE_NAME}.i
+            SOURCE ${SOURCE}
+            TARGET ${PP_TARGET}
+        )
+        add_custom_command(
+            TARGET ${PP_TARGET}
+            PRE_BUILD
+            COMMAND grep "^[^\\#].*\$ " ${SOURCE_NAME}.i > ${SOURCE_NAME}.eu.c
+            COMMENT "Cleaning preprocessed file"
+            DEPENDS ${SOURCE_NAME}.i
+        )
+        add_custom_command(
+            TARGET ${PP_TARGET}
+            PRE_BUILD
+            COMMAND clang-format ${SOURCE_NAME}.eu.c > ${SOURCE_NAME}.e.c
+            COMMENT "Formatting preprocessed file"
+            DEPENDS ${SOURCE_NAME}.eu.c
+        )
+    endforeach()
+endfunction()
+
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_c_preprocessor_command(
       OUTPUT ${PROJECT_NAME}.i

@@ -65,7 +65,7 @@ if(BUILD_EXAMPLES)
   include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/preprocessor.cmake)
 
   # List of example source files
-  set(EXAMPLE_SOURCES examples/BasicExample.c)
+  set(EXAMPLE_SOURCES examples/BasicExample.c examples/LifecycleExample.c)
 
   # Apply the preprocessor to each example source file
   apply_preprocessor_to_sources(SOURCES ${EXAMPLE_SOURCES} TARGET eer)

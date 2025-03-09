@@ -93,7 +93,7 @@ result_t test_loop_hooks() {
 
   // Verify before loop hook
   test_assert(before_loop_value == 0,
-              "Before loop hook should capture initial value 1, got %d",
+              "Before loop hook should capture initial value 0, got %d",
               before_loop_value);
 
   // Verify after iteration 2 hook
@@ -101,9 +101,12 @@ result_t test_loop_hooks() {
               "After iteration 2 hook should capture value 3, got %d",
               iteration_2_value);
 
+  // Wait a bit for the before_exit_hook to execute
+  usleep(10000); // 10ms should be enough
+
   // Verify before exit hook
-  test_assert(before_exit_value == 6,
-              "Before exit hook should capture final value 6, got %d",
+  test_assert(before_exit_value == 7,
+              "Before exit hook should capture final value 7, got %d",
               before_exit_value);
 
   return OK;
@@ -128,8 +131,12 @@ test(test_loop_hooks) {
 
     // Exit after 5 iterations
     if (eer_current_iteration >= 5) {
-	eer_land.state.unmounted = true;
-	log_info("Unmounted");
+        // Apply one final update before exiting
+        apply(HookTestComponent, hookTestComponent,
+              _({.value = hookTestComponent.state.value + 1}));
+        
+        eer_land.state.unmounted = true;
+        log_info("Unmounted");
     }
   }
 }

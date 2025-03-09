@@ -63,6 +63,7 @@
   void program();                                                              \
   void *__program(void *ptr) {                                                 \
     program();                                                                 \
+    eer_execute_hooks(EER_LOOP_BEFORE_EXIT);                                   \
     return NULL;                                                               \
   }                                                                            \
   int main(void) {                                                             \
@@ -74,7 +75,6 @@
                    (void *)&program_thread_id);                                \
     test_execute(__VA_ARGS__);                                                 \
     test_wait(__VA_ARGS__);                                                    \
-    eer_execute_hooks(EER_LOOP_BEFORE_EXIT);                                   \
     eer_land.state.unmounted = true;                                           \
     pthread_join(program_thread, NULL);                                        \
     after;                                                                     \

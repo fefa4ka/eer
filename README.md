@@ -99,6 +99,9 @@ DID_MOUNT(MyComponent) {
 - **Components**: Encapsulated units of functionality with props/state
 - **Lifecycle Hooks**: will_mount(), did_update(), etc for state management
 - **Reactivity System**: Automatic dependency tracking and propagation
+- **Staging Process**: Manages component transitions through lifecycle states
+
+See the [API Reference](docs/API.md) for detailed information on component definition and the staging process.
 
 ### API Reference
 

@@ -87,21 +87,77 @@ DID_UNMOUNT(MyComponent) {
 
 ## Component Definition
 
-### `eer_header(Type)`
-Declares a component type with its props and state structures.
+### Component Structure
+
+Components in the EER framework consist of three main parts:
+
+1. **Props**: Input parameters that control the component's behavior
+2. **State**: Internal data that can change over time
+3. **Instance**: The core component structure that manages lifecycle
+
+A component is defined using the following pattern:
+
+```c
+// Define the props structure
+typedef struct {
+  int value;
+  // Other input properties
+} MyComponent_props_t;
+
+// Define the state structure
+typedef struct {
+  int current_value;
+  bool initialized;
+  // Other internal state
+} MyComponent_state_t;
+
+// Declare the component header
+eer_header(MyComponent);
+
+// Implement lifecycle methods
+WILL_MOUNT(MyComponent) {
+  // Initialize state
+}
+
+// Other lifecycle methods...
+```
+
+### Component Creation Macros
+
+#### `eer_header(Type)`
+Declares a component type with its props and state structures. This macro generates the necessary function prototypes and type definitions.
 
 ```c
 eer_header(MyComponent);
 ```
 
-### `eer(Type, name)`
+Internally, this expands to:
+
+```c
+typedef struct MyComponent {
+    eer_t          instance;  // Core component structure
+    MyComponent_props_t props;  // Component properties
+    MyComponent_state_t state;  // Component state
+} MyComponent_t;
+
+// Function prototypes for lifecycle methods
+void MyComponent_will_mount(void *instance, void *next_props);
+bool MyComponent_should_update(void *instance, void *next_props);
+void MyComponent_will_update(void *instance, void *next_props);
+void MyComponent_release(void *instance);
+void MyComponent_did_mount(void *instance);
+void MyComponent_did_unmount(void *instance);
+void MyComponent_did_update(void *instance);
+```
+
+#### `eer(Type, name)`
 Creates a component instance with default props.
 
 ```c
 eer(MyComponent, myComponent);
 ```
 
-### `eer_withprops(Type, name, props)`
+#### `eer_withprops(Type, name, props)`
 Creates a component with specified props.
 
 ```c
@@ -110,7 +166,7 @@ eer_withprops(MyComponent, myComponent, _({
 }));
 ```
 
-### `eer_withstate(Type, name, state)`
+#### `eer_withstate(Type, name, state)`
 Creates a component with specified state.
 
 ```c
@@ -118,6 +174,106 @@ eer_withstate(MyComponent, myComponent, _({
   .value = 0,
   .initialized = false
 }));
+```
+
+#### `eer_define(Type, name, props, state)`
+Creates a component with both props and state specified.
+
+```c
+eer_define(MyComponent, myComponent, 
+  _({ .value = 42 }),  // props
+  _({ .initialized = false })  // state
+);
+```
+
+### Component Staging Process
+
+The EER framework uses a staging process to manage component lifecycle transitions. This is handled by the `eer_staging` function, which is the core of the framework's reactivity system.
+
+#### How Staging Works
+
+1. **Component Creation**: When a component is created, it starts in the `EER_STAGE_DEFINED` state.
+
+2. **Mounting**: When the component is first used (via `use()`, `loop()`, etc.), it transitions to:
+   - `will_mount()` is called to initialize the component
+   - `release()` is called to apply initial props to state
+   - `did_mount()` is called for post-mount operations
+   - Component enters `EER_STAGE_RELEASED` state
+
+3. **Updates**: When props change (via `apply()` or `react()`):
+   - `should_update()` is called to determine if update is needed
+   - If update is needed, component enters `EER_STAGE_PREPARED` state
+   - `will_update()` is called to prepare for the update
+   - `release()` is called to apply new props to state
+   - `did_update()` is called for post-update operations
+   - Component returns to `EER_STAGE_RELEASED` state
+
+4. **Unmounting**: When a component is unmounted:
+   - Component enters `EER_STAGE_UNMOUNTED` state
+   - `did_unmount()` is called for cleanup
+   - Component enters `EER_STAGE_BLOCKED` state
+
+The staging process ensures that components transition through their lifecycle in a predictable way, with appropriate hooks called at each stage.
+
+#### Implementation Details
+
+The `eer_staging` function in `src/eer.c` handles these transitions:
+
+```c
+enum eer_context eer_staging(eer_t *instance, void *next_props)
+{
+    // Convert pointer to context value if it's a context flag
+    uintptr_t context = (uintptr_t)next_props;
+
+    // Handle different context flags
+    if(EER_CONTEXT_SAME == context) {
+        if(EER_STAGE_RELEASED >= instance->stage.state.step)
+            return EER_CONTEXT_SAME;
+    } else if(EER_CONTEXT_UPDATED == context) {
+        next_props = 0;
+    } else if (EER_CONTEXT_BLOCKED == context) {
+        instance->stage.state.step = EER_STAGE_UNMOUNTED;
+    }
+
+    // Handle different component stages
+    if (EER_STAGE_RELEASED == instance->stage.state.step) {
+        // Update process
+        if(!instance->should_update(instance, next_props)) {
+            return EER_CONTEXT_SAME;
+        }
+        instance->stage.state.step = EER_STAGE_PREPARED;
+        instance->will_update(instance, next_props);
+    } else if (EER_STAGE_REACTING == instance->stage.state.step) {
+        // React process (forced update)
+        instance->stage.state.step = EER_STAGE_PREPARED;
+        instance->will_update(instance, next_props);
+        instance->stage.state.step = EER_STAGE_RELEASED;
+        instance->release(instance);
+        instance->did_update(instance);
+    } else if (EER_STAGE_PREPARED == instance->stage.state.step) {
+        // Complete update process
+        instance->stage.state.step = EER_STAGE_RELEASED;
+        instance->release(instance);
+        instance->did_update(instance);
+    } else if (EER_STAGE_DEFINED == instance->stage.state.step) {
+        // Mount process
+#ifdef PROFILING
+        hash_write(&eer_scope, eer_hash_component(instance->name), (void **)instance);
+#endif
+        instance->will_mount(instance, next_props);
+        instance->release(instance);
+        instance->did_mount(instance);
+        instance->stage.state.step = EER_STAGE_RELEASED;
+    } else if (EER_STAGE_UNMOUNTED == instance->stage.state.step) {
+        // Unmount process
+        instance->stage.state.step = EER_STAGE_BLOCKED;
+        instance->did_unmount(instance);
+    } else if (EER_STAGE_BLOCKED) {
+        return EER_CONTEXT_BLOCKED;
+    }
+
+    return EER_CONTEXT_UPDATED;
+}
 ```
 
 ## Event Loop

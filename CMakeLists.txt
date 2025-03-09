@@ -35,10 +35,16 @@ if(ENABLE_TESTS)
   # Add tests
   include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/preprocessor.cmake)
   enable_testing()
+  
+  # Add test utilities
+  add_library(test_utils STATIC test/test_utils.c)
+  target_include_directories(test_utils PUBLIC test)
+  
   # List of test source files
   set(TEST_SOURCES 
     test/MyComponent.c
     test/SimpleTest.c
+    test/LoopHookTest.c
   )
 
   # Apply the preprocessor to each test source file
@@ -49,8 +55,8 @@ if(ENABLE_TESTS)
     get_filename_component(SOURCE_NAME ${SOURCE} NAME_WE)
     add_executable(${SOURCE_NAME} ${CMAKE_BINARY_DIR}/${SOURCE_NAME}.e.c)
     add_dependencies(${SOURCE_NAME} GenerateSources)
-    target_include_directories(${SOURCE_NAME} PUBLIC include)
-    target_link_libraries(${SOURCE_NAME} eer)
+    target_include_directories(${SOURCE_NAME} PUBLIC include test)
+    target_link_libraries(${SOURCE_NAME} eer test_utils)
     add_test(NAME ${SOURCE_NAME} COMMAND ${SOURCE_NAME})
   endforeach()
 endif()

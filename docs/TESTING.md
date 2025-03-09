@@ -147,6 +147,95 @@ test(verify_component) {
 4. **Test Coverage**: Test all lifecycle methods of your components
 5. **Test Both Event Loop Approaches**: Test both `loop` and `ignite` approaches
 
+## Loop Hooks and Event Testing
+
+The EER Framework provides a mechanism to hook into specific loop events, making it easier to test component behavior at different stages of execution.
+
+### Available Hook Points
+
+- **Before Loop Start**: Execute code before the event loop begins
+- **After Specific Iteration**: Execute code after a specific iteration completes
+- **Before Loop Exit**: Execute code just before the loop exits
+
+### Using Loop Hooks
+
+```c
+// Define hook functions
+void before_loop_hook(void* data) {
+  // Code to run before the loop starts
+  int* value_ptr = (int*)data;
+  *value_ptr = component.state.value;
+}
+
+void after_iteration_hook(void* data) {
+  // Code to run after a specific iteration
+  int* value_ptr = (int*)data;
+  *value_ptr = component.state.value;
+}
+
+// Register hooks
+int before_value = 0;
+int after_value = 0;
+
+test_hook_before_loop(before_loop_hook, &before_value);
+test_hook_after_iteration(3, after_iteration_hook, &after_value);
+
+// In your test function
+test(verify_hooks) {
+  loop(component) {
+    // Your loop code here
+    
+    // Exit after some iterations
+    if (eer_current_iteration >= 5) {
+      break;
+    }
+  }
+}
+
+// Verify hook results
+result_t verify_hooks() {
+  // Wait for iterations to complete if needed
+  test_wait_for_iteration(5);
+  
+  test_assert(before_value == expected, "Before hook value check");
+  test_assert(after_value == expected, "After iteration hook value check");
+  
+  return OK;
+}
+```
+
+### Waiting for Iterations
+
+You can wait for a specific iteration to complete before continuing with your test:
+
+```c
+// Wait for the 3rd iteration to complete
+test_wait_for_iteration(3);
+
+// Now verify the component state after 3 iterations
+test_assert(component.state.value == expected, "Value after 3 iterations");
+```
+
+### Available Hook Macros
+
+- `test_hook_before_loop(function, data)`: Register a hook before the loop starts
+- `test_hook_after_iteration(n, function, data)`: Register a hook after iteration n
+- `test_hook_before_exit(function, data)`: Register a hook before the loop exits
+- `test_wait_for_iteration(n)`: Wait for iteration n to complete
+
+### Iteration Counter
+
+The current iteration is available via the `eer_current_iteration` variable, which can be used in your loop code:
+
+```c
+loop(component) {
+  // Do something based on the current iteration
+  if (eer_current_iteration == 2) {
+    // Special handling for iteration 2
+  }
+}
+```
+
 ## Debugging Tests
 
 When a test fails:

@@ -13,40 +13,8 @@
 #define MAX_TABLE_SIZE 10007 // Prime Number for hash table
 
 struct eer_hal_calls {
-    uint64_t gpio_in;
-    uint64_t gpio_out;
-    uint64_t gpio_on;
-    uint64_t gpio_off;
-    uint64_t gpio_flip;
-    uint64_t gpio_pullup;
-    uint64_t gpio_pulldown;
-    uint64_t gpio_get;
-
-    uint64_t adc_mount;
-    uint64_t adc_select_channel;
-    uint64_t adc_start_convertion;
-    uint64_t adc_is_convertion_ready;
-    uint64_t adc_read_convertion;
-
-    uint64_t uart_init;
-    uint64_t uart_is_data_received;
-    uint64_t uart_is_transmit_ready;
-    uint64_t uart_transmit;
-    uint64_t uart_receive;
-
-    uint64_t timer_init;
-    uint64_t timer_get;
-    uint64_t timer_compare_set;
-    uint64_t timer_off;
-    uint64_t timer_ticks_to_us;
-    uint64_t timer_us_to_ticks;
-
-    uint64_t lr_seek;
-    uint64_t lr_put;
-    uint64_t lr_get;
-    uint64_t lr_exists;
-    uint64_t lr_count;
-    uint64_t lr_count_owned;
+    uint64_t some_call_counter;
+    /* Add more calls here */
 };
               
 #define PROFILING_STRUCT                                                       \

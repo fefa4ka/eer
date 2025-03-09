@@ -118,10 +118,12 @@ DID_MOUNT(MyComponent) {
 - `DID_UNMOUNT(Type)` - Called when a component is unmounted
 
 #### Event Loop
-- `ignite(...)` - Initialize the event loop with components
-- `loop(...)` - Start the main event loop
-- `halt(code)` - Exit the event loop with a return code
-- `terminate` - Exit the current loop iteration
+- `loop(...)` - Start an infinite for-loop with component initialization (checks for `unmounted` flag)
+- `ignite(...)` - Alternative approach: starts a goto-based infinite loop with component initialization
+- `halt(code)` - Exit the event loop with a return code (works with both `loop` and `ignite`)
+- `terminate` - Skip to the next loop iteration (works with both `loop` and `ignite`)
+
+**Note:** You should use either `loop` or the `ignite`/`halt` pair, not both together.
 
 #### Component Interaction
 - `apply(Type, instance, props)` - Apply new props to a component

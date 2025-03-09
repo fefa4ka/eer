@@ -5,6 +5,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 option(PROFILING "Enable profiling" OFF)
 option(ENABLE_TESTS "Enable building of tests" OFF)
+option(BUILD_EXAMPLES "Build example applications" ON)
 
 # Configuration options
 option(PLATFORM "Target platform (simulation or native)" simulation)
@@ -58,5 +59,32 @@ if(ENABLE_TESTS)
     target_include_directories(${SOURCE_NAME} PUBLIC include test)
     target_link_libraries(${SOURCE_NAME} eer test_utils)
     add_test(NAME ${SOURCE_NAME} COMMAND ${SOURCE_NAME})
+  endforeach()
+endif()
+
+# Build examples
+if(BUILD_EXAMPLES)
+  include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/preprocessor.cmake)
+  
+  # List of example source files
+  set(EXAMPLE_SOURCES
+    examples/BasicExample.c
+  )
+  
+  # Apply the preprocessor to each example source file
+  apply_preprocessor_to_sources(SOURCES ${EXAMPLE_SOURCES} TARGET eer)
+  
+  # Create executables from preprocessed files
+  foreach(SOURCE ${EXAMPLE_SOURCES})
+    get_filename_component(SOURCE_NAME ${SOURCE} NAME_WE)
+    add_executable(${SOURCE_NAME} ${CMAKE_BINARY_DIR}/${SOURCE_NAME}.e.c)
+    add_dependencies(${SOURCE_NAME} GenerateSources)
+    target_include_directories(${SOURCE_NAME} PUBLIC include)
+    
+    if(PROFILING)
+      target_link_libraries(${SOURCE_NAME} eer profiling)
+    else()
+      target_link_libraries(${SOURCE_NAME} eer)
+    endif()
   endforeach()
 endif()

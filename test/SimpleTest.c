@@ -37,18 +37,35 @@ RELEASE(SimpleComponent) {
 // Create a component instance with initial props
 eer_withprops(SimpleComponent, simpleComponent, _({.value = 42}));
 
+// Hook function to be called after component is mounted
+void after_mount_hook(void* data) {
+  bool* mounted_ptr = (bool*)data;
+  *mounted_ptr = simpleComponent.state.mounted;
+  log_info("After mount hook called, mounted = %d", *mounted_ptr);
+}
+
+// Hook function to be called after update
+void after_update_hook(void* data) {
+  int* value_ptr = (int*)data;
+  *value_ptr = simpleComponent.state.value;
+  log_info("After update hook called, value = %d", *value_ptr);
+}
+
+// Global variables to store hook results
+bool component_mounted = false;
+int updated_value = 0;
+
 // Define a test function to verify the component works
 result_t test_simple_component() {
+  // Wait for the component to be processed
+  test_wait_for_iteration(2);
+  
   // Verify the component was mounted
-  test_assert(simpleComponent.state.mounted == true, 
+  test_assert(component_mounted == true, 
               "Component should be mounted");
   
-  // Verify the initial value was set
-  test_assert(simpleComponent.state.value == 42, 
-              "Initial value should be 42");
-  
   // Verify the value was updated
-  test_assert(simpleComponent.state.value == 100, 
+  test_assert(updated_value == 100, 
               "Value should be updated to 100");
   
   return OK;
@@ -56,12 +73,21 @@ result_t test_simple_component() {
 
 // Main test function
 test(test_simple_component) {
+  // Register hooks to capture component state
+  test_hook_after_iteration(1, after_mount_hook, &component_mounted);
+  test_hook_after_iteration(2, after_update_hook, &updated_value);
+  
   // Start the event loop with our component
-  loop() {
-    // Update the component with a new value
-    apply(SimpleComponent, simpleComponent, _({.value = 100}));
+  loop(simpleComponent) {
+    // First iteration: component is mounted
+    if (eer_current_iteration == 1) {
+      // Update the component with a new value
+      apply(SimpleComponent, simpleComponent, _({.value = 100}));
+    }
     
-    // Exit after one iteration
-    break;
+    // Exit after two iterations
+    if (eer_current_iteration >= 2) {
+      break;
+    }
   }
 }

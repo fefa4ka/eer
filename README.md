@@ -101,9 +101,39 @@ DID_MOUNT(MyComponent) {
 - **Reactivity System**: Automatic dependency tracking and propagation
 
 ### API Reference
-- Marcos for event-loop usage (`loop`, `ignite` & `halt`)
-- Macros for declaring components (`eer_header`, ...)
-- Component lifecycle macros (`WILL_MOUNT`, `DID_UPDATE`, etc)
+
+#### Component Definition
+- `eer_header(Type)` - Declares a component type with its props and state structures
+- `eer(Type, name)` - Creates a component instance with default props
+- `eer_withprops(Type, name, props)` - Creates a component with specified props
+- `eer_withstate(Type, name, state)` - Creates a component with specified state
+
+#### Lifecycle Hooks
+- `WILL_MOUNT(Type)` - Called before a component is mounted
+- `WILL_UPDATE(Type)` - Called before a component updates
+- `SHOULD_UPDATE(Type)` - Determines if a component should update (returns boolean)
+- `RELEASE(Type)` - Called when a component is being released (main update logic)
+- `DID_UPDATE(Type)` - Called after a component has updated
+- `DID_MOUNT(Type)` - Called after a component has mounted
+- `DID_UNMOUNT(Type)` - Called when a component is unmounted
+
+#### Event Loop
+- `ignite(...)` - Initialize the event loop with components
+- `loop(...)` - Start the main event loop
+- `halt(code)` - Exit the event loop with a return code
+- `terminate` - Exit the current loop iteration
+
+#### Component Interaction
+- `apply(Type, instance, props)` - Apply new props to a component
+- `react(Type, instance, props)` - Force a component to react to new props
+- `use(...)` - Use components in the current context
+- `with(...)` - Create a new context with specified components
+
+#### Bit Manipulation Utilities
+- `bit_value(data, bit)` - Get the value of a specific bit
+- `bit_set(data, bit)` - Set a specific bit to 1
+- `bit_flip(data, bit)` - Toggle a specific bit
+- `bit_clear(data, bit)` - Clear a specific bit to 0
 
 ### Building and Testing
 

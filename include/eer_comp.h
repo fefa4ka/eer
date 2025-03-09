@@ -55,7 +55,9 @@
  */
 #define eer_define_component(Type, name)                                       \
     {                                                                          \
-        .stage = {EER_STAGE_DEFINED}, .will_mount = Type##_will_mount,         \
+        .stage = {.state = {.step = EER_STAGE_DEFINED, .updated = false,       \
+                           .context = EER_CONTEXT_SAME, .raise_on = 0}},       \
+        .will_mount = Type##_will_mount,                                       \
         .should_update = Type##_should_update,                                 \
         .will_update = Type##_will_update, .release = Type##_release,          \
         .did_mount = Type##_did_mount, .did_update = Type##_did_update,        \

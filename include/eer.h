@@ -104,8 +104,9 @@
 
 #define eer_while(...)                                                         \
     for (union eer_land eer_land                                               \
-         = {.state = {IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(MAP(                \
-                __eer_init, __VA_ARGS__)) EER_CONTEXT_SAME))(EER_CONTEXT_UPDATED)}}; \
+         = {.state = {.context = IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(MAP(     \
+                __eer_init, __VA_ARGS__)) EER_CONTEXT_SAME))(EER_CONTEXT_UPDATED), \
+                     .finished = false, .unmounted = false, .step = 0}}; \
          !eer_land.state.unmounted && eer_land.state.context;                  \
          eer_land.state.context = IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(        \
              MAP(__eer_init, __VA_ARGS__)) EER_CONTEXT_SAME))(EER_CONTEXT_UPDATED))

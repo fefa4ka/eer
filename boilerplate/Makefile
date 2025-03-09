@@ -26,10 +26,16 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/components
 
+# Rule to create component directories as needed
+$(BUILD_DIR)/components/%.o: $(SRC_DIR)/components/%.c | $(BUILD_DIR)/components
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
 $(BUILD_DIR)/app: $(OBJ_FILES)
 	$(CC) $(CFLAGS) -o $@ $^ $(EER_LIB)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Test targets

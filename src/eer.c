@@ -67,7 +67,9 @@ enum eer_context eer_staging(eer_t *instance, void *next_props)
     } else if (EER_STAGE_UNMOUNTED == instance->stage.state.step) {
         // Unmounting process
         instance->stage.state.step = EER_STAGE_BLOCKED;
-        instance->did_unmount(instance);
+        if (instance->did_unmount) {
+            instance->did_unmount(instance);
+        }
     } else if (EER_STAGE_BLOCKED) {
         // Component is blocked, cannot process further
         return EER_CONTEXT_BLOCKED;

@@ -5,17 +5,12 @@ A lightweight framework for building reactive, component-based embedded systems.
 ## Key Features
 
 - 🧩 Component-based architecture with finite state machines
-- ⚡ Event-driven lifecycle management with ISR-safe operations
+- ⚡ Event-driven lifecycle management 
 - 🔄 Automatic reactivity system with dependency tracking
-- 🛠️ Hardware abstraction layer for portable peripherals
 - 📦 Memory-efficient design (<2KB RAM typical usage)
 - ⏱️ Deterministic execution with cycle-counted operations
-- 🔒 Thread-safe primitives for RTOS integration
 
 ## Getting Started
-
-### Prerequisites
-- CMake 3.12+ for build configuration
 
 ```c
 #include <eer.h>
@@ -83,20 +78,6 @@ DID_MOUNT(MyComponent) {
   /* Perform any tasks that need to be done after the component is fully initialized */
   printf("MyComponent mounted with value %d\n", state->value);
 }
-
-/* Implement any additional functions or methods for the component */
-
-void MyComponent_reset(eer_t *instance) {
-  /* Reset the component's state */
-  MyComponent_state_t *state = eer_state(MyComponent, instance);
-  state->value = 0;
-}
-
-int MyComponent_getValue(eer_t *instance) {
-  /* Get the current value of the component */
-  MyComponent_state_t *state = eer_state(MyComponent, instance);
-  return state->value;
-}
 ```
 
 
@@ -106,18 +87,13 @@ int MyComponent_getValue(eer_t *instance) {
 - **Components**: Encapsulated units of functionality with props/state
 - **Lifecycle Hooks**: will_mount(), did_update(), etc for state management
 - **Reactivity System**: Automatic dependency tracking and propagation
-- **Hardware Abstraction**: Uniform interface for peripherals (GPIO, I2C, etc)
 
 ### API Reference
+- Marcos for event-loop usage (`loop`, `ignite` & `halt`)
+- Macros for declaring components (`eer_header`, ...)
 - Component lifecycle macros (`WILL_MOUNT`, `DID_UPDATE`, etc)
-- Hardware abstraction layer (hal/gpio.h, hal/i2c.h)
-- Memory management utilities (pool allocator, circular buffers)
 
-### Simulation Example
+### Build Tests
 ```bash
-# Build and run desktop simulation
-cmake -B build -DPLATFORM=simulation
-cmake --build build && ./build/simulator
+cmake -DENABLE_TESTS=On -DPROFILING=On -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=1 ../
 ```
-
-## License

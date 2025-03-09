@@ -17,9 +17,9 @@ if [[ $# -ne 1 || ($1 != "major" && $1 != "minor" && $1 != "patch") ]]; then
 fi
 
 # Get current version from CMakeLists.txt
-MAJOR=$(grep "set(EER_VERSION_MAJOR" CMakeLists.txt | sed 's/[^0-9]*//g')
-MINOR=$(grep "set(EER_VERSION_MINOR" CMakeLists.txt | sed 's/[^0-9]*//g')
-PATCH=$(grep "set(EER_VERSION_PATCH" CMakeLists.txt | sed 's/[^0-9]*//g')
+MAJOR=$(grep "set(EER_VERSION_MAJOR" CMakeLists.txt | gsed 's/[^0-9]*//g')
+MINOR=$(grep "set(EER_VERSION_MINOR" CMakeLists.txt | gsed 's/[^0-9]*//g')
+PATCH=$(grep "set(EER_VERSION_PATCH" CMakeLists.txt | gsed 's/[^0-9]*//g')
 
 echo "Current version: $MAJOR.$MINOR.$PATCH"
 
@@ -42,20 +42,20 @@ NEW_VERSION="$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
 echo "New version: $NEW_VERSION"
 
 # Update version in CMakeLists.txt
-sed -i "s/set(EER_VERSION_MAJOR $MAJOR)/set(EER_VERSION_MAJOR $NEW_MAJOR)/" CMakeLists.txt
-sed -i "s/set(EER_VERSION_MINOR $MINOR)/set(EER_VERSION_MINOR $NEW_MINOR)/" CMakeLists.txt
-sed -i "s/set(EER_VERSION_PATCH $PATCH)/set(EER_VERSION_PATCH $NEW_PATCH)/" CMakeLists.txt
+gsed -i "s/set(EER_VERSION_MAJOR $MAJOR)/set(EER_VERSION_MAJOR $NEW_MAJOR)/" CMakeLists.txt
+gsed -i "s/set(EER_VERSION_MINOR $MINOR)/set(EER_VERSION_MINOR $NEW_MINOR)/" CMakeLists.txt
+gsed -i "s/set(EER_VERSION_PATCH $PATCH)/set(EER_VERSION_PATCH $NEW_PATCH)/" CMakeLists.txt
 
 # Update version in include/eer.h
-sed -i "s/#define EER_VERSION_MAJOR $MAJOR/#define EER_VERSION_MAJOR $NEW_MAJOR/" include/eer.h
-sed -i "s/#define EER_VERSION_MINOR $MINOR/#define EER_VERSION_MINOR $NEW_MINOR/" include/eer.h
-sed -i "s/#define EER_VERSION_PATCH $PATCH/#define EER_VERSION_PATCH $NEW_PATCH/" include/eer.h
-sed -i "s/#define EER_VERSION_STRING \"$MAJOR.$MINOR.$PATCH\"/#define EER_VERSION_STRING \"$NEW_VERSION\"/" include/eer.h
-sed -i "s/@version $MAJOR.$MINOR.$PATCH/@version $NEW_VERSION/" include/eer.h
+gsed -i "s/#define EER_VERSION_MAJOR $MAJOR/#define EER_VERSION_MAJOR $NEW_MAJOR/" include/eer.h
+gsed -i "s/#define EER_VERSION_MINOR $MINOR/#define EER_VERSION_MINOR $NEW_MINOR/" include/eer.h
+gsed -i "s/#define EER_VERSION_PATCH $PATCH/#define EER_VERSION_PATCH $NEW_PATCH/" include/eer.h
+gsed -i "s/#define EER_VERSION_STRING \"$MAJOR.$MINOR.$PATCH\"/#define EER_VERSION_STRING \"$NEW_VERSION\"/" include/eer.h
+gsed -i "s/@version $MAJOR.$MINOR.$PATCH/@version $NEW_VERSION/" include/eer.h
 
 # Update CHANGELOG.md - add new version section
 DATE=$(date +%Y-%m-%d)
-sed -i "s/## \[$MAJOR.$MINOR.$PATCH\]/## [$NEW_VERSION] - $DATE\n\n### Added\n- \n\n### Changed\n- \n\n### Fixed\n- \n\n## [$MAJOR.$MINOR.$PATCH]/" CHANGELOG.md
+gsed -i "s/## \[$MAJOR.$MINOR.$PATCH\]/## [$NEW_VERSION] - $DATE\n\n### Added\n- \n\n### Changed\n- \n\n### Fixed\n- \n\n## [$MAJOR.$MINOR.$PATCH]/" CHANGELOG.md
 
 echo "Version updated to $NEW_VERSION"
 echo "Now:"

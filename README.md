@@ -119,9 +119,11 @@ DID_MOUNT(MyComponent) {
 
 #### Event Loop
 - `loop(...)` - Start an infinite for-loop with component initialization (checks for `unmounted` flag)
+
+Alternatively, you can use the following functions:
 - `ignite(...)` - Alternative approach: starts a goto-based infinite loop with component initialization
-- `halt(code)` - Exit the event loop with a return code (works with both `loop` and `ignite`)
-- `terminate` - Skip to the next loop iteration (works with both `loop` and `ignite`)
+- `terminate` - Exit the event loop
+- `halt(code)` - Exit the event loop with a return code
 
 **Note:** You should use either `loop` or the `ignite`/`halt` pair, not both together.
 

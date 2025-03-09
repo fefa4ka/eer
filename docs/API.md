@@ -122,13 +122,6 @@ eer_withstate(MyComponent, myComponent, _({
 
 ## Event Loop
 
-### `ignite(...)`
-Initialize the event loop with components.
-
-```c
-ignite(component1, component2);
-```
-
 ### `loop(...)`
 Start the main event loop.
 
@@ -138,15 +131,23 @@ loop(component1, component2) {
 }
 ```
 
+### `ignite(...)`
+Initialize the event loop with components.
+
+```c
+ignite(component1, component2);
+```
+         
+
 ### `halt(code)`
-Exit the event loop with a return code.
+Exit the event loop started with `ignite` with a return code.
 
 ```c
 halt(0);
 ```
 
 ### `terminate`
-Exit the current loop iteration.
+Exit the current `ignite` loop iteration.
 
 ```c
 if (condition) {
@@ -188,36 +189,4 @@ Create a new context with specified components.
 with(component1, component2) {
   // Context body
 }
-```
-
-## Bit Manipulation Utilities
-
-### `bit_value(data, bit)`
-Get the value of a specific bit.
-
-```c
-if (bit_value(flags, 3)) {
-  // Bit 3 is set
-}
-```
-
-### `bit_set(data, bit)`
-Set a specific bit to 1.
-
-```c
-bit_set(flags, 3);
-```
-
-### `bit_flip(data, bit)`
-Toggle a specific bit.
-
-```c
-bit_flip(flags, 3);
-```
-
-### `bit_clear(data, bit)`
-Clear a specific bit to 0.
-
-```c
-bit_clear(flags, 3);
 ```

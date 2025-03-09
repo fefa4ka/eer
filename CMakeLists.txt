@@ -38,7 +38,7 @@ if(ENABLE_TESTS)
   
   # Add test utilities
   add_library(test_utils STATIC test/test_utils.c)
-  target_include_directories(test_utils PUBLIC test)
+  target_include_directories(test_utils PUBLIC include test)
   
   # List of test source files
   set(TEST_SOURCES 

@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Clean build directory
+mkdir -p build
+cd build
 rm -rf *
 
 # Configure with CMake
@@ -9,7 +11,11 @@ cmake -DENABLE_TESTS=ON -DPROFILING=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_C
 # Build
 make
 
-# Show success message
-echo -e "\n\033[1;32mBuild completed successfully!\033[0m"
-echo "Run tests with: ctest"
-echo "Or run individual tests like: ./SimpleTest"
+# Run passed tests as $@ argument
+# Example: ./build.sh SimpleTest LoopHookTest
+for test in "$@"; do
+	./${test}
+	cat ./profiler.log
+done
+	
+	

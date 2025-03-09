@@ -65,7 +65,7 @@ void after_ignite_update(void *data) {
 /* Test function that uses ignite/terminate/halt */
 int run_ignite_test() {
   // Initialize the component
-  ignite();
+  ignite(igniteComponent);
   
   // First iteration - update component
   apply(IgniteComponent, igniteComponent, 

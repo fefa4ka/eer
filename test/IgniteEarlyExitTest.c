@@ -66,7 +66,7 @@ void after_early_exit_update(void *data) {
 /* Test function that uses ignite/halt with early exit */
 int run_early_exit_test() {
   // Initialize the component
-  ignite();
+  ignite(earlyExitComponent);
   
   // Update component
   apply(EarlyExitComponent, earlyExitComponent, 

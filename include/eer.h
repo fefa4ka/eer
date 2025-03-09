@@ -39,7 +39,7 @@
     }
 
 #define eer_shut(x)                                                            \
-    x.instance.stage = EER_STAGE_UNMOUNTED;                                    \
+    x.instance.stage.state.step = EER_STAGE_UNMOUNTED;                                    \
     eer_staging(&x.instance, 0);
 
 #define __eer_use(x)                                                           \

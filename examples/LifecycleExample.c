@@ -9,8 +9,8 @@
 #include <eer_app.h>
 #include <eer_comp.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <time.h>
+#include <unistd.h>
 
 // Define a component with full lifecycle implementation
 typedef struct {
@@ -42,8 +42,8 @@ SHOULD_UPDATE(LifecycleComponent) {
 }
 
 WILL_UPDATE(LifecycleComponent) {
-  printf("WILL_UPDATE: Preparing for update from %d to %d\n", 
-         state->value, next_props->value);
+  printf("WILL_UPDATE: Preparing for update from %d to %d\n", state->value,
+         next_props->value);
 }
 
 RELEASE(LifecycleComponent) {
@@ -54,7 +54,7 @@ RELEASE(LifecycleComponent) {
 }
 
 DID_UPDATE(LifecycleComponent) {
-  printf("DID_UPDATE: Component updated to value %d (update #%d)\n", 
+  printf("DID_UPDATE: Component updated to value %d (update #%d)\n",
          state->value, state->update_count);
 }
 
@@ -63,15 +63,13 @@ DID_MOUNT(LifecycleComponent) {
 }
 
 DID_UNMOUNT(LifecycleComponent) {
-  printf("DID_UNMOUNT: Component unmounted after %d updates\n", 
+  printf("DID_UNMOUNT: Component unmounted after %d updates\n",
          state->update_count);
 }
 
 // Create a component instance with initial props
-eer_withprops(LifecycleComponent, lifecycleComponent, _({
-  .value = 1,
-  .force_update = false
-}));
+eer_withprops(LifecycleComponent, lifecycleComponent,
+              _({.value = 1, .force_update = false}));
 
 // Define a standard component to replace the hook-based one
 typedef struct {
@@ -95,26 +93,18 @@ SHOULD_UPDATE(StandardComponent) {
   return props->value != next_props->value;
 }
 
-WILL_UPDATE(StandardComponent) {
-  printf("Standard: WILL_UPDATE called\n");
-}
+WILL_UPDATE(StandardComponent) { printf("Standard: WILL_UPDATE called\n"); }
 
 RELEASE(StandardComponent) {
   printf("Standard: RELEASE called\n");
   state->value = props->value;
 }
 
-DID_MOUNT(StandardComponent) {
-  printf("Standard: DID_MOUNT called\n");
-}
+DID_MOUNT(StandardComponent) { printf("Standard: DID_MOUNT called\n"); }
 
-DID_UPDATE(StandardComponent) {
-  printf("Standard: DID_UPDATE called\n");
-}
+DID_UPDATE(StandardComponent) { printf("Standard: DID_UPDATE called\n"); }
 
-DID_UNMOUNT(StandardComponent) {
-  printf("Standard: DID_UNMOUNT called\n");
-}
+DID_UNMOUNT(StandardComponent) { printf("Standard: DID_UNMOUNT called\n"); }
 
 // Create a standard component with initial props
 eer_withprops(StandardComponent, standardComponent, _({.value = 10}));
@@ -154,27 +144,35 @@ int main() {
   // Start the event loop
   loop(lifecycleComponent, standardComponent, minimalComponent) {
     printf("\n--- Iteration ---\n");
-    
+
     // Update the standard component
     apply(LifecycleComponent, lifecycleComponent,
-          _({.value = lifecycleComponent.state.value + 1, 
+          _({.value = lifecycleComponent.state.value + 1,
              .force_update = false}));
-    
+
     // Update the standard component
     apply(StandardComponent, standardComponent,
           _({.value = standardComponent.state.value + 5}));
-    
+
     // Update the minimal component
     apply(MinimalComponent, minimalComponent,
           _({.value = minimalComponent.state.value + 1}));
-    
+
     // Sleep to make output readable
     usleep(500000);
-    
+
     // Exit after a few iterations
-    if (lifecycleComponent.state.update_count >= 3) {
-      printf("\nExiting after %d updates\n", 
+    if (lifecycleComponent.state.update_count == 3) {
+      printf("\nExiting after %d updates\n",
              lifecycleComponent.state.update_count);
+      eer_shut(lifecycleComponent);
+      eer_shut(standardComponent);
+      eer_shut(minimalComponent);
+    }
+
+    if (lifecycleComponent.instance.stage.state.step == EER_STAGE_BLOCKED &&
+        standardComponent.instance.stage.state.step == EER_STAGE_BLOCKED &&
+        minimalComponent.instance.stage.state.step == EER_STAGE_BLOCKED) {
       eer_land.state.unmounted = true;
     }
   }

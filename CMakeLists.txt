@@ -24,6 +24,7 @@ if(PROFILING)
     target_include_directories(profiling PUBLIC profiler)
     target_link_libraries(eer profiling)
     target_compile_definitions(eer PRIVATE PROFILING)
+    target_compile_definitions(profiling PRIVATE PROFILING)
 endif()
                       
 

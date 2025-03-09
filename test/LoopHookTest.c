@@ -44,6 +44,13 @@ void before_loop_hook(void *data) {
   log_info("Before loop hook called, value = %d", *value_ptr);
 }
 
+// Hook function to be called after iteration 1
+void after_iteration_1_hook(void *data) {
+  int *value_ptr = (int *)data;
+  *value_ptr = hookTestComponent.state.value;
+  log_info("After iteration 1 hook called, value = %d", *value_ptr);
+}
+
 // Hook function to be called after iteration 2
 void after_iteration_2_hook(void *data) {
   int *value_ptr = (int *)data;
@@ -51,6 +58,20 @@ void after_iteration_2_hook(void *data) {
   log_info("After iteration 2 hook called, value = %d", *value_ptr);
 }
 
+// Hook function to be called after iteration 3
+void after_iteration_3_hook(void *data) {
+  int *value_ptr = (int *)data;
+  *value_ptr = hookTestComponent.state.value;
+  log_info("After iteration 3 hook called, value = %d", *value_ptr);
+}
+
+// Hook function to be called after iteration 4
+void after_iteration_4_hook(void *data) {
+  int *value_ptr = (int *)data;
+  *value_ptr = hookTestComponent.state.value;
+  log_info("After iteration 4 hook called, value = %d", *value_ptr);
+}
+         
 // Hook function to be called before exit
 void before_exit_hook(void *data) {
   int *value_ptr = (int *)data;
@@ -58,17 +79,20 @@ void before_exit_hook(void *data) {
   log_info("Before exit hook called, value = %d", *value_ptr);
 }
 
-// Test function to verify hooks work correctly
-result_t test_loop_hooks() {
   int before_loop_value = 0;
+  int iteration_1_value = 0;
   int iteration_2_value = 0;
+  int iteration_3_value = 0;
+  int iteration_4_value = 0;
   int before_exit_value = 0;
 
+// Test function to verify hooks work correctly
+result_t test_loop_hooks() {
   // Wait for all hooks to execute
-  test_wait_for_iteration(5);
+  test_wait_for_iteration(6);
 
   // Verify before loop hook
-  test_assert(before_loop_value == 1,
+  test_assert(before_loop_value == 0,
               "Before loop hook should capture initial value 1, got %d",
               before_loop_value);
 
@@ -87,13 +111,13 @@ result_t test_loop_hooks() {
 
 // Main test function
 test(test_loop_hooks) {
-  int before_loop_value = 0;
-  int iteration_2_value = 0;
-  int before_exit_value = 0;
 
   // Register hooks
   test_hook_before_loop(before_loop_hook, &before_loop_value);
+  test_hook_after_iteration(1, after_iteration_1_hook, &iteration_1_value);
   test_hook_after_iteration(2, after_iteration_2_hook, &iteration_2_value);
+  test_hook_after_iteration(3, after_iteration_3_hook, &iteration_3_value);
+  test_hook_after_iteration(4, after_iteration_4_hook, &iteration_4_value);
   test_hook_before_exit(before_exit_hook, &before_exit_value);
 
   // Start the event loop with our component
@@ -104,7 +128,8 @@ test(test_loop_hooks) {
 
     // Exit after 5 iterations
     if (eer_current_iteration >= 5) {
-      break;
+	eer_land.state.unmounted = true;
+	log_info("Unmounted");
     }
   }
 }

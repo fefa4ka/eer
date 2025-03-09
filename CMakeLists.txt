@@ -16,8 +16,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Add sources
 add_library(eer src/eer.c)
-target_compile_definitions(eer
-		       PUBLIC EER_VERSION="${EER_VERSION}")
+target_compile_definitions(eer PUBLIC EER_VERSION="${EER_VERSION}")
 target_include_directories(eer PUBLIC include)
 set_property(TARGET eer PROPERTY C_STANDARD 99)
 
@@ -70,13 +69,13 @@ if(BUILD_EXAMPLES)
 
   # Apply the preprocessor to each example source file
   apply_preprocessor_to_sources(SOURCES ${EXAMPLE_SOURCES} TARGET eer)
-  add_custom_target(GenerateSources ALL DEPENDS ${GENERATED_FILES})
+  add_custom_target(ExamplesSources ALL DEPENDS ${GENERATED_FILES})
 
   # Create executables from preprocessed files
   foreach(SOURCE ${EXAMPLE_SOURCES})
     get_filename_component(SOURCE_NAME ${SOURCE} NAME_WE)
     add_executable(${SOURCE_NAME} ${CMAKE_BINARY_DIR}/${SOURCE_NAME}.e.c)
-    add_dependencies(${SOURCE_NAME} GenerateSources)
+    add_dependencies(${SOURCE_NAME} ExamplesSources)
     target_include_directories(${SOURCE_NAME} PUBLIC include)
 
     target_link_libraries(${SOURCE_NAME} eer)

@@ -12,6 +12,8 @@ A lightweight framework for building reactive, component-based embedded systems.
 
 ## Getting Started
 
+This example shows how to create a simple application using the EER framework:
+
 ```c
 #include <eer.h>
 #include <eers_app.h>
@@ -20,18 +22,28 @@ A lightweight framework for building reactive, component-based embedded systems.
 
 /* Initialize the component with some initial props */
 MyComponent(myComponentInstance, _({
-  .value = 42
+  .value = 42  // Initial value for the component
 }));
 
 void main() {
+    // Start the event loop - this is where the magic happens
     loop() { 
-        /* Apply new properties */
+        /* Apply new properties to trigger component updates
+           The component will automatically re-render when props change */
         apply(MyComponent, myComponentInstance, _({
-          .value = 123
+          .value = 123  // New value that will trigger an update
         }));
+        
+        // The framework handles the component lifecycle automatically
     }
 }
 ```
+
+The EER framework manages the component lifecycle for you:
+1. Components are initialized with initial props
+2. The event loop processes updates and triggers lifecycle methods
+3. Components react to property changes automatically
+4. Memory usage is optimized for embedded systems
 
 ### Component Declaration
 ```c

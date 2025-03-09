@@ -12,7 +12,7 @@ option(PLATFORM "Target platform (simulation or native)" simulation)
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Include directories
-include_directories(include)
+include_directories(include /usr/include /usr/local/include)
 
 # Add sources
 add_library (eer src/eer.c)

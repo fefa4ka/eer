@@ -57,7 +57,7 @@ result_t test_simple_component() {
 // Main test function
 test(test_simple_component) {
   // Start the event loop with our component
-  loop(simpleComponent) {
+  loop() {
     // Update the component with a new value
     apply(SimpleComponent, simpleComponent, _({.value = 100}));
     

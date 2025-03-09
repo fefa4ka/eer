@@ -22,7 +22,7 @@ function(add_c_preprocessor_command)
         COMMAND ${CMAKE_C_COMPILER}
             "-D$<JOIN:$<TARGET_PROPERTY:${CPP_TARGET},COMPILE_DEFINITIONS>,;-D>"
             "-I$<JOIN:$<TARGET_PROPERTY:${CPP_TARGET},INCLUDE_DIRECTORIES>,;-I>"
-            ${c_flags}
+            ${c_flags} -isystem /usr/include -isystem /usr/local/include
             $<TARGET_PROPERTY:${CPP_TARGET},COMPILE_OPTIONS>
             ${CPP_EXTRA_C_FLAGS}
             -E ${CMAKE_CURRENT_SOURCE_DIR}/${CPP_SOURCE} -o ${CPP_OUTPUT}

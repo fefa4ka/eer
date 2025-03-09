@@ -3,6 +3,7 @@
 # Create build directory if it doesn't exist
 mkdir -p build
 cd build
+rm -rf *
 
 # Configure with CMake
 cmake -DBUILD_EXAMPLES=ON -DENABLE_TESTS=Off -DPROFILING=Off -DCMAKE_BUILD_TYPE=Debug ..
@@ -10,6 +11,9 @@ cmake -DBUILD_EXAMPLES=ON -DENABLE_TESTS=Off -DPROFILING=Off -DCMAKE_BUILD_TYPE=
 # Build
 make
 
-# Show success message
-echo -e "\n\033[1;32mExamples built successfully!\033[0m"
-echo "Run the basic example with: ./BasicExample"
+# Run passed apps as $@ argument
+# Example: ./build.sh SimpleTest LoopHookTest
+for app in "$@"; do
+	./${app}
+done
+	    

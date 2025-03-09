@@ -70,6 +70,7 @@ if(BUILD_EXAMPLES)
 
   # Apply the preprocessor to each example source file
   apply_preprocessor_to_sources(SOURCES ${EXAMPLE_SOURCES} TARGET eer)
+  add_custom_target(GenerateSources ALL DEPENDS ${GENERATED_FILES})
 
   # Create executables from preprocessed files
   foreach(SOURCE ${EXAMPLE_SOURCES})

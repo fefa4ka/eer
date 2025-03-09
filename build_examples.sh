@@ -5,7 +5,7 @@ mkdir -p build
 cd build
 
 # Configure with CMake
-cmake -DBUILD_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Debug ..
+cmake -DBUILD_EXAMPLES=ON -DENABLE_TESTS=Off -DPROFILING=Off -DCMAKE_BUILD_TYPE=Debug ..
 
 # Build
 make

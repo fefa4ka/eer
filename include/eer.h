@@ -46,7 +46,7 @@
 
 #define eer_define_component(Type, name)                                       \
     {                                                                          \
-        .stage = {STAGE_DEFINED}, .will_mount = Type##_will_mount,             \
+        .stage = {EER_STAGE_DEFINED}, .will_mount = Type##_will_mount,         \
         .should_update = Type##_should_update,                                 \
         .will_update = Type##_will_update, .release = Type##_release,          \
         .did_mount = Type##_did_mount, .did_update = Type##_did_update,        \
@@ -264,9 +264,9 @@
 #define _(...) __VA_ARGS__
 
 #define eer_apply(Type, name, propsValue)                                      \
-    if (CONTEXT_UPDATED == eer_land.state.context                              \
-        && (STAGE_RELEASED == name.instance.stage.state.step                   \
-            || STAGE_DEFINED == name.instance.stage.state.step)) {             \
+    if (EER_CONTEXT_UPDATED == eer_land.state.context                          \
+        && (EER_STAGE_RELEASED == name.instance.stage.state.step               \
+            || EER_STAGE_DEFINED == name.instance.stage.state.step)) {         \
         eer_lifecycle_prepare(Type, &name, next_props);                        \
         Type##_props_t next_props = propsValue;                                \
         eer_lifecycle_finish(Type, &name, next_props);                         \
@@ -279,14 +279,14 @@
     {                                                                          \
         Type##_props_t next_props = propsValue;                                \
         eer_staging(&name.instance, eer_land.state.context);                   \
-        if (CONTEXT_BLOCKED != eer_land.state.context) {                       \
-            &name.instance.stage.state.step = STAGE_REACTING;                  \
+        if (EER_CONTEXT_BLOCKED != eer_land.state.context) {                   \
+            &name.instance.stage.state.step = EER_STAGE_REACTING;              \
             eer_staging(&name.instance, &next_props);                          \
         }                                                                      \
     }
 
 #define eer_shut(x)                                                            \
-    x.instance.stage = STAGE_UNMOUNTED;                                        \
+    x.instance.stage = EER_STAGE_UNMOUNTED;                                    \
     eer_staging(&x.instance, 0);
 
 #define __eer_use(x)                                                           \
@@ -302,17 +302,17 @@
          !eer_current_land.state.finished;                                     \
          eer_current_land.state.finished = true)                               \
         for (union eer_land eer_land                                           \
-             = {.state = {EVAL(MAP(__eer_with, __VA_ARGS__)) CONTEXT_SAME}};   \
+             = {.state = {EVAL(MAP(__eer_with, __VA_ARGS__)) EER_CONTEXT_SAME}}; \
              !eer_land.state.finished; eer_land.state.finished = true)
 
-#define __eer_init(x) eer_staging(&x.instance, (void *)CONTEXT_UPDATED) |
+#define __eer_init(x) eer_staging(&x.instance, (void *)EER_CONTEXT_UPDATED) |
 #define eer_init(...)                                                          \
     union eer_land __attribute__((unused)) eer_land;                           \
     eer_land.flags = 0;                                                        \
     goto eer_boot;                                                             \
     eer_boot:                                                                  \
     eer_land.state.context = IF_ELSE(HAS_ARGS(__VA_ARGS__))(                   \
-        (EVAL(MAP(__eer_init, __VA_ARGS__)) CONTEXT_UPDATED))(CONTEXT_UPDATED)
+        (EVAL(MAP(__eer_init, __VA_ARGS__)) EER_CONTEXT_UPDATED))(EER_CONTEXT_UPDATED)
 
 #define eer_loop(...)                                                          \
     goto eer_boot;                                                             \
@@ -322,10 +322,10 @@
 #define eer_while(...)                                                         \
     for (union eer_land eer_land                                               \
          = {.state = {IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(MAP(                \
-                __eer_init, __VA_ARGS__)) CONTEXT_SAME))(CONTEXT_UPDATED)}};   \
-         !eer_land.state.unmounted && eer_land.state.context;                                               \
+                __eer_init, __VA_ARGS__)) EER_CONTEXT_SAME))(EER_CONTEXT_UPDATED)}}; \
+         !eer_land.state.unmounted && eer_land.state.context;                  \
          eer_land.state.context = IF_ELSE(HAS_ARGS(__VA_ARGS__))((EVAL(        \
-             MAP(__eer_init, __VA_ARGS__)) CONTEXT_SAME))(CONTEXT_UPDATED))
+             MAP(__eer_init, __VA_ARGS__)) EER_CONTEXT_SAME))(EER_CONTEXT_UPDATED))
 
 
 #define eer_terminate                                                          \
@@ -344,7 +344,11 @@
 #endif
 
 
-enum eer_context { CONTEXT_SAME, CONTEXT_UPDATED, CONTEXT_BLOCKED };
+enum eer_context { 
+    EER_CONTEXT_SAME, 
+    EER_CONTEXT_UPDATED, 
+    EER_CONTEXT_BLOCKED 
+};
 
 union eer_land {
     struct {
@@ -359,12 +363,12 @@ union eer_land {
 union eer_stage {
     struct {
         enum {
-            STAGE_BLOCKED,
-            STAGE_RELEASED,
-            STAGE_DEFINED,
-            STAGE_REACTING,
-            STAGE_PREPARED,
-            STAGE_UNMOUNTED
+            EER_STAGE_BLOCKED,
+            EER_STAGE_RELEASED,
+            EER_STAGE_DEFINED,
+            EER_STAGE_REACTING,
+            EER_STAGE_PREPARED,
+            EER_STAGE_UNMOUNTED
         } step : 3;
         bool             updated : 1;
         enum eer_context context : 2;

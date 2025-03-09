@@ -29,4 +29,4 @@
 #define RELEASE_HOOK       eer_release_hook
 #define DID_MOUNT_HOOK     eer_did_mount_hook
 #define DID_UPDATE_HOOK    eer_did_update_hook
-#define DID_UNMOUNT_HOOK   eer_did_unmount_hook   
+#define DID_UNMOUNT_HOOK   eer_did_unmount_hook

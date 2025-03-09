@@ -174,7 +174,7 @@ The implementation in `eer.h` looks like this:
 #define eer_halt(code)                                                         \
     if (!eer_land.state.unmounted)                                             \
         goto eer_boot;                                                         \
-    {                                                                          \
+    else {                                                                     \
         return code;                                                           \
     }
 ```

@@ -209,7 +209,7 @@ use(component1, component2);
 ```
 
 ### `with(...)`
-Create a new context with specified components.
+Create a new context with specified components, context body updates if components change.
 
 ```c
 with(component1, component2) {

@@ -36,7 +36,9 @@ if(ENABLE_TESTS)
   include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/preprocessor.cmake)
   enable_testing()
   # List of test source files
-  set(TEST_SOURCES test/MyComponent.c # Add other test source files here
+  set(TEST_SOURCES 
+    test/MyComponent.c
+    test/SimpleTest.c
   )
 
   # Apply the preprocessor to each test source file

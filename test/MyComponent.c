@@ -1,6 +1,5 @@
 #include <eer.h>
 #include <eer_app.h>
-#include <eer_comp.h>
 #include "test.h"
 #include <stdio.h>
 

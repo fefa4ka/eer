@@ -1,5 +1,8 @@
 # EER Framework - Embedded Event-driven Reactor
 
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/yourusername/eer-framework/releases)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 A lightweight framework for building reactive, component-based embedded systems. Provides a structured approach to managing hardware interactions and system reactivity with minimal overhead.
 
 ## Key Features

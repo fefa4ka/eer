@@ -3,7 +3,10 @@ project(eer_framework C)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-set(EER_VERSION "0.1.0")
+set(EER_VERSION_MAJOR 0)
+set(EER_VERSION_MINOR 2)
+set(EER_VERSION_PATCH 0)
+set(EER_VERSION "${EER_VERSION_MAJOR}.${EER_VERSION_MINOR}.${EER_VERSION_PATCH}")
 option(PROFILING "Enable profiling" OFF)
 option(ENABLE_TESTS "Enable building of tests" OFF)
 option(BUILD_EXAMPLES "Build example applications" ON)
@@ -16,7 +19,11 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Add sources
 add_library(eer src/eer.c)
-target_compile_definitions(eer PUBLIC EER_VERSION="${EER_VERSION}")
+target_compile_definitions(eer PUBLIC 
+    EER_VERSION="${EER_VERSION}"
+    EER_VERSION_MAJOR=${EER_VERSION_MAJOR}
+    EER_VERSION_MINOR=${EER_VERSION_MINOR}
+    EER_VERSION_PATCH=${EER_VERSION_PATCH})
 target_include_directories(eer PUBLIC include)
 set_property(TARGET eer PROPERTY C_STANDARD 99)
 

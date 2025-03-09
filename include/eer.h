@@ -6,13 +6,42 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// This header file defines a set of macros and functions for creating and 
-// managing components in the EER framework. 
-//
-// It provides a set of lifecycle methods that can be implemented to handle 
-// the various stages of a component's lifecycle, such as mounting, updating, 
-// and unmounting. Additionally, it defines macros for accessing a component's 
-// props and state, as well as macros for creating and initializing components.
+/**
+ * @file eer.h
+ * @brief Core EER Framework definitions
+ * @version 0.2.0
+ * 
+ * This header file defines a set of macros and functions for creating and 
+ * managing components in the EER framework. 
+ *
+ * It provides a set of lifecycle methods that can be implemented to handle 
+ * the various stages of a component's lifecycle, such as mounting, updating, 
+ * and unmounting. Additionally, it defines macros for accessing a component's 
+ * props and state, as well as macros for creating and initializing components.
+ */
+
+/**
+ * @defgroup version Version Information
+ * @{
+ */
+#define EER_VERSION_MAJOR 0
+#define EER_VERSION_MINOR 2
+#define EER_VERSION_PATCH 0
+#define EER_VERSION_STRING "0.2.0"
+
+/**
+ * @brief Check if the current version is at least the specified version
+ * @param major Major version number
+ * @param minor Minor version number
+ * @param patch Patch version number
+ * @return true if the current version is at least the specified version
+ */
+#define EER_VERSION_AT_LEAST(major, minor, patch) \
+    ((EER_VERSION_MAJOR > (major)) || \
+     (EER_VERSION_MAJOR == (major) && EER_VERSION_MINOR > (minor)) || \
+     (EER_VERSION_MAJOR == (major) && EER_VERSION_MINOR == (minor) && EER_VERSION_PATCH >= (patch)))
+
+/** @} */ // end of version group
 
 /* Component interaction macros */
 #define eer_apply(Type, name, propsValue)                                      \

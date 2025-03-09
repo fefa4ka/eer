@@ -210,3 +210,165 @@ ctest
 # Run a specific test
 ./MyComponent
 ```
+
+## How to Use in Your Application
+
+### Getting Started with the Boilerplate
+
+The EER framework includes a boilerplate project structure that you can use as a starting point for your own applications.
+
+1. **Copy the Boilerplate Directory**
+
+   ```bash
+   cp -r boilerplate/ my-eer-project/
+   cd my-eer-project/
+   ```
+
+2. **Build and Run the Example**
+
+   ```bash
+   mkdir -p build && cd build
+   cmake ..
+   make
+   ./my_eer_project
+   ```
+
+3. **Customize for Your Application**
+
+   - Modify `src/main.c` to define your application's entry point
+   - Add new components in `include/components/` and `src/components/`
+   - Write tests for your components in `test/`
+
+### Project Structure Best Practices
+
+For larger applications, consider organizing your code as follows:
+
+```
+my-app/
+├── include/
+│   ├── components/     # Component definitions
+│   │   ├── ui/         # UI components
+│   │   ├── logic/      # Business logic components
+│   │   └── system/     # System-level components
+│   └── utils/          # Utility functions
+├── src/
+│   ├── components/     # Component implementations
+│   │   ├── ui/
+│   │   ├── logic/
+│   │   └── system/
+│   ├── utils/          # Utility implementations
+│   └── main.c          # Application entry point
+└── test/               # Test files
+```
+
+### Component Design Patterns
+
+1. **Simple Component**
+
+   ```c
+   // Header file (include/components/counter.h)
+   typedef struct {
+     int initial_value;
+     int increment;
+   } Counter_props_t;
+
+   typedef struct {
+     int value;
+     int update_count;
+   } Counter_state_t;
+
+   eer_header(Counter);
+
+   // Implementation file (src/components/counter.c)
+   WILL_MOUNT(Counter) {
+     state->value = props->initial_value;
+     state->update_count = 0;
+   }
+
+   RELEASE(Counter) {
+     state->value += props->increment;
+     state->update_count++;
+   }
+   ```
+
+2. **Component Composition**
+
+   ```c
+   // Using components inside other components
+   typedef struct {
+     Counter_t counter;
+     Display_t display;
+   } Application_state_t;
+
+   RELEASE(Application) {
+     // Update child components
+     apply(Counter, self->state.counter, _({
+       .increment = props->counter_increment
+     }));
+     
+     apply(Display, self->state.display, _({
+       .value = self->state.counter.state.value
+     }));
+   }
+   ```
+
+3. **Conditional Rendering**
+
+   ```c
+   loop(alwaysActiveComponent) {
+     // Conditionally use components
+     if (condition) {
+       use(conditionalComponent);
+     }
+     
+     // Update components
+     apply(AlwaysActiveComponent, alwaysActiveComponent, _({
+       .value = newValue
+     }));
+   }
+   ```
+
+### Memory Management
+
+The EER framework is designed to be memory-efficient. Components are statically allocated by default, which is ideal for embedded systems. For dynamic component creation:
+
+```c
+// Allocate a component dynamically
+MyComponent_t* dynamicComponent = (MyComponent_t*)malloc(sizeof(MyComponent_t));
+*dynamicComponent = (MyComponent_t){
+  .instance = eer_define_component(MyComponent, dynamicComponent),
+  .props = {.value = 42}
+};
+
+// Use the component
+apply(MyComponent, *dynamicComponent, _({.value = 100}));
+
+// Free when done
+free(dynamicComponent);
+```
+
+### Debugging Tips
+
+1. **Component State Inspection**
+
+   ```c
+   printf("Component state: value=%d, count=%d\n", 
+          myComponent.state.value, 
+          myComponent.state.update_count);
+   ```
+
+2. **Lifecycle Debugging**
+
+   Add print statements to lifecycle methods to track component behavior:
+
+   ```c
+   DID_UPDATE(MyComponent) {
+     printf("MyComponent updated: value=%d\n", state->value);
+   }
+   ```
+
+3. **Using the Debug Macro**
+
+   ```c
+   eer_debug_lifecycle(MyComponent, myComponent);
+   ```

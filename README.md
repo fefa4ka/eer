@@ -93,7 +93,28 @@ DID_MOUNT(MyComponent) {
 - Macros for declaring components (`eer_header`, ...)
 - Component lifecycle macros (`WILL_MOUNT`, `DID_UPDATE`, etc)
 
-### Build Tests
+### Building and Testing
+
+#### Build Configuration
 ```bash
-cmake -DENABLE_TESTS=On -DPROFILING=On -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=1 ../
+# Debug build with tests and profiling enabled
+mkdir -p build && cd build
+cmake -DENABLE_TESTS=ON -DPROFILING=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=1 ..
+
+# Release build
+mkdir -p build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+```
+
+#### Running Tests
+```bash
+# Build the tests
+cd build
+make
+
+# Run all tests
+ctest
+
+# Run a specific test
+./MyComponent
 ```

@@ -14,6 +14,6 @@ make
 # Run passed apps as $@ argument
 # Example: ./build.sh SimpleTest LoopHookTest
 for app in "$@"; do
-	./${app}
+	./build/${app}
 done
 	    

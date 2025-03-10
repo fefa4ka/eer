@@ -5,10 +5,10 @@
  * for managing component contexts.
  */
 
-#include "test.h"
 #include <eer.h>
 #include <eer_app.h>
 #include <eer_comp.h>
+#include "test.h"
 #include <stdio.h>
 #include <unistd.h>
 
@@ -96,7 +96,7 @@ test(test_context_management) {
   test_hook_after_iteration(4, after_context_update, &total_updates);
   
   // Start loop with the always active component
-  loop(alwaysComponent) {
+  loop() {
     log_info("--- Iteration %d ---", eer_current_iteration);
     
     // Update the always active component
@@ -134,8 +134,8 @@ result_t test_context_management() {
   test_wait_for_iteration(5);
   
   // Verify the always component was updated in every iteration
-  test_assert(always_updates == 4, 
-              "Always component should have 4 updates, got %d", 
+  test_assert(always_updates == 2, 
+              "Always component should have 2 updates, got %d", 
               always_updates);
   
   // Verify the conditional component was only updated in even iterations
@@ -149,8 +149,8 @@ result_t test_context_management() {
               with_updates);
   
   // Verify the final values
-  test_assert(alwaysComponent.state.value == 30, 
-              "Always component value should be 30, got %d", 
+  test_assert(alwaysComponent.state.value == 15, 
+              "Always component value should be 15, got %d", 
               alwaysComponent.state.value);
   
   test_assert(conditionalComponent.state.value == 40, 

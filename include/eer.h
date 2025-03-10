@@ -83,9 +83,9 @@
   for (union eer_land eer_current_land = eer_land;                             \
        !eer_current_land.state.finished;                                       \
        eer_current_land.state.finished = true)                                 \
-    for (union eer_land eer_land =                                             \
+    for (union eer_land eer_with_land =                                             \
              {.state = {EVAL(MAP(__eer_with, __VA_ARGS__)) EER_CONTEXT_SAME}}; \
-         !eer_land.state.finished; eer_land.state.finished = true)
+         !eer_with_land.state.finished; eer_with_land.state.finished = true)
 
 /* Event loop macros */
 #define __eer_init(x) eer_staging(&x.instance, (void *)EER_CONTEXT_UPDATED) |

@@ -26,9 +26,7 @@ void enable_raw_mode() {
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
 
-void disable_raw_mode() {
-  tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
-}
+void disable_raw_mode() { tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios); }
 
 // Define the Keyboard component
 typedef struct {
@@ -38,7 +36,6 @@ typedef struct {
 typedef struct {
   bool enabled;
   char key;
-  bool has_input;
 } KeyboardComponent_state_t;
 
 eer_header(KeyboardComponent);
@@ -47,35 +44,32 @@ eer_header(KeyboardComponent);
 WILL_MOUNT(KeyboardComponent) {
   state->enabled = props->enabled;
   state->key = 0;
-  state->has_input = false;
   printf("Keyboard component initialized\n");
 }
 
 SHOULD_UPDATE(KeyboardComponent) {
-  return props->enabled != next_props->enabled;
-}
-
-WILL_UPDATE_SKIP(KeyboardComponent);
-
-RELEASE(KeyboardComponent) {
-  state->enabled = props->enabled;
-  
   // Read keyboard input if enabled
   if (state->enabled) {
     char c = 0;
     if (read(STDIN_FILENO, &c, 1) == 1) {
       state->key = c;
-      state->has_input = true;
+      return true;
     } else {
-      state->has_input = false;
+     return false;
     }
-  }
+  }    
+}
+
+WILL_UPDATE_SKIP(KeyboardComponent);
+
+RELEASE(KeyboardComponent) {
+	printf("Keyboard release\n");
+
+
 }
 
 DID_UPDATE(KeyboardComponent) {
-  if (state->has_input) {
     printf("Key pressed: %c\n", state->key);
-  }
 }
 
 DID_MOUNT(KeyboardComponent) {
@@ -121,34 +115,35 @@ WILL_UPDATE_SKIP(CommandComponent);
 RELEASE(CommandComponent) {
   state->key = props->key;
   state->command_count++;
-  
+
   // Process different commands based on key input
   switch (state->key) {
-    case 'h':
-      strcpy(state->response, "Hello, world!");
-      break;
-    case 'q':
-      strcpy(state->response, "Quitting application...");
-      break;
-    case '1':
-      strcpy(state->response, "Command One executed");
-      break;
-    case '2':
-      strcpy(state->response, "Command Two executed");
-      break;
-    case '?':
-      strcpy(state->response, "Help: Press h, q, 1, 2, or ? for different commands");
-      break;
-    default:
-      snprintf(state->response, sizeof(state->response), 
-               "Unknown command: %c", state->key);
-      break;
+  case 'h':
+    strcpy(state->response, "Hello, world!");
+    break;
+  case 'q':
+    strcpy(state->response, "Quitting application...");
+    break;
+  case '1':
+    strcpy(state->response, "Command One executed");
+    break;
+  case '2':
+    strcpy(state->response, "Command Two executed");
+    break;
+  case '?':
+    strcpy(state->response,
+           "Help: Press h, q, 1, 2, or ? for different commands");
+    break;
+  default:
+    snprintf(state->response, sizeof(state->response), "Unknown command: %c",
+             state->key);
+    break;
   }
 }
 
 DID_UPDATE(CommandComponent) {
-  printf("Command response: %s (command #%d)\n", 
-         state->response, state->command_count);
+  printf("Command response: %s (command #%d)\n", state->response,
+         state->command_count);
 }
 
 DID_MOUNT(CommandComponent) {
@@ -156,9 +151,7 @@ DID_MOUNT(CommandComponent) {
   printf("Type '?' for help\n");
 }
 
-DID_UNMOUNT(CommandComponent) {
-  printf("Command component unmounted\n");
-}
+DID_UNMOUNT(CommandComponent) { printf("Command component unmounted\n"); }
 
 // Create a command component instance
 eer_withprops(CommandComponent, command, _({.key = 0}));
@@ -172,20 +165,15 @@ int main() {
     // Use the keyboard component to get input
     with(keyboard) {
       // Process the keyboard input with the command component
-      if (keyboard.state.has_input) {
-        apply(CommandComponent, command, _({.key = keyboard.state.key}));
-        
-        // Reset the keyboard input flag
-        keyboard.state.has_input = false;
-        
-        // Exit if 'q' is pressed
-        if (keyboard.state.key == 'q') {
-          printf("Exiting application\n");
-          eer_land.state.unmounted = true;
-        }
+      apply(CommandComponent, command, _({.key = keyboard.state.key}));
+
+      // Exit if 'q' is pressed
+      if (keyboard.state.key == 'q') {
+        printf("Exiting application\n");
+        eer_land.state.unmounted = true;
       }
     }
-    
+
     // Small delay to prevent CPU hogging
     usleep(10000); // 10ms delay
   }

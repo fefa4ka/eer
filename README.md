@@ -1,6 +1,6 @@
 # EER Framework - Embedded Event-driven Reactor
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/yourusername/eer-framework/releases)
+[![Version](https://img.shields.io/badge/version-0.2.1-blue.svg)](https://github.com/yourusername/eer-framework/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 A lightweight framework for building reactive, component-based embedded systems. Provides a structured approach to managing hardware interactions and system reactivity with minimal overhead.
@@ -328,47 +328,3 @@ my-app/
    }
    ```
 
-### Memory Management
-
-The EER framework is designed to be memory-efficient. Components are statically allocated by default, which is ideal for embedded systems. For dynamic component creation:
-
-```c
-// Allocate a component dynamically
-MyComponent_t* dynamicComponent = (MyComponent_t*)malloc(sizeof(MyComponent_t));
-*dynamicComponent = (MyComponent_t){
-  .instance = eer_define_component(MyComponent, dynamicComponent),
-  .props = {.value = 42}
-};
-
-// Use the component
-apply(MyComponent, *dynamicComponent, _({.value = 100}));
-
-// Free when done
-free(dynamicComponent);
-```
-
-### Debugging Tips
-
-1. **Component State Inspection**
-
-   ```c
-   printf("Component state: value=%d, count=%d\n", 
-          myComponent.state.value, 
-          myComponent.state.update_count);
-   ```
-
-2. **Lifecycle Debugging**
-
-   Add print statements to lifecycle methods to track component behavior:
-
-   ```c
-   DID_UPDATE(MyComponent) {
-     printf("MyComponent updated: value=%d\n", state->value);
-   }
-   ```
-
-3. **Using the Debug Macro**
-
-   ```c
-   eer_debug_lifecycle(MyComponent, myComponent);
-   ```

@@ -26,11 +26,3 @@ typedef struct {
 /* Declare the component header */
 eer_header(MyComponent);
 
-/* Lifecycle method declarations */
-void MyComponent_will_mount(void *instance, void *next_props);
-bool MyComponent_should_update(void *instance, void *next_props);
-void MyComponent_will_update(void *instance, void *next_props);
-void MyComponent_release(void *instance);
-void MyComponent_did_update(void *instance);
-void MyComponent_did_mount(void *instance);
-void MyComponent_did_unmount(void *instance);

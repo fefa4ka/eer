@@ -4,10 +4,10 @@
  * This test verifies the behavior of the react macro for forced updates.
  */
 
-#include "test.h"
 #include <eer.h>
 #include <eer_app.h>
 #include <eer_comp.h>
+#include "test.h"
 #include <stdio.h>
 #include <unistd.h>
 
@@ -45,15 +45,16 @@ WILL_UPDATE(ReactComponent) {
 }
 
 RELEASE(ReactComponent) {
-  log_info("RELEASE called, updating value from %d to %d", 
-           state->value, props->value);
+  log_info("RELEASE called, updating value from %d to %d (update_count: %d)", 
+           state->value, props->value, state->update_count);
   state->value = props->value;
   state->update_count++;
   
   // Check if this was a forced update (react bypasses should_update)
   if (props->value % 2 != 0) {
     state->forced_update_count++;
-    log_info("Forced update detected (odd value: %d)", props->value);
+    log_info("Forced update detected (odd value: %d, forced: %d)", 
+             props->value, state->forced_update_count);
   }
 }
 
@@ -87,10 +88,10 @@ test(test_react_updates) {
   int total_updates = 0;
   
   // Register hook to capture update counts
-  test_hook_after_iteration(5, after_react_update, &total_updates);
+  test_hook_after_iteration(           6, after_react_update, &total_updates);
   
   // Start loop with the component
-  loop(reactComponent) {
+  loop() {
     // First iteration: normal update with even value (should succeed)
     if (eer_current_iteration == 1) {
       log_info("Iteration 1: Normal update with even value (2)");
@@ -135,13 +136,13 @@ result_t test_react_updates() {
   test_wait_for_iteration(6);
   
   // Verify the component was updated correctly
+  test_assert(forced_updates == 2, 
+              "Component should have 2 forced updates, got %d", 
+              forced_updates);
   test_assert(normal_updates == 4, 
               "Component should have 4 total updates, got %d", 
               normal_updates);
   
-  test_assert(forced_updates == 2, 
-              "Component should have 2 forced updates, got %d", 
-              forced_updates);
   
   // Verify the final value
   test_assert(reactComponent.state.value == 7, 

@@ -1,14 +1,14 @@
 #pragma once
 
 #include "hash.h"
+#include "log.h"
+#include "test_utils.h"
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
-#include "test_utils.h"
-#include "log.h"
 
 #define MAX_TABLE_SIZE 10007 // Prime Number for hash table
 
@@ -110,7 +110,7 @@ struct eer_hal_calls {
 #undef eer_init
 #define eer_init(...)                                                          \
   profiler_init();                                                             \
-  union eer_land eer_land;                                                     \
+  union eer_land eer_land = {0};                                               \
   ;                                                                            \
   eer_land.flags = 0;                                                          \
   eer_boot:                                                                    \
@@ -122,18 +122,18 @@ struct eer_hal_calls {
   profiler_init();                                                             \
   eer_execute_hooks(EER_LOOP_BEFORE_START);                                    \
   eer_boot:                                                                    \
-  eer_while(__VA_ARGS__)                                                      
+  eer_while(__VA_ARGS__)
 
 #undef eer_terminate
 #define eer_terminate                                                          \
-  if (!eer_land.state.unmounted && eer_step()) {                               \
+  if (!eer_land.state.unmounted) {                                             \
     eer_increment_iteration();                                                 \
     goto eer_boot;                                                             \
   }
 
 #undef eer_halt
 #define eer_halt(code)                                                         \
-  if (!eer_land.state.unmounted && eer_step()) {                               \
+  if (!eer_land.state.unmounted) {                                             \
     eer_increment_iteration();                                                 \
     goto eer_boot;                                                             \
   }                                                                            \
@@ -142,7 +142,6 @@ struct eer_hal_calls {
   }
 
 extern struct hash_table eer_scope;
-extern uint64_t eer_steps;
 extern struct eer_hal_calls *eer_current_scope;
 extern clock_t eer_cpu_total;
 extern struct eer_hal_calls eer_calls;
@@ -150,6 +149,5 @@ extern bool eer_stop;
 
 void eer_signal_handler(int sig);
 unsigned int eer_frame_depth();
-bool eer_dump_usage();
-uint64_t eer_step();
+void eer_dump_usage();
 unsigned int eer_hash_component(char *word);

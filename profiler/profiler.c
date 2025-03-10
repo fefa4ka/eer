@@ -1,4 +1,5 @@
 #include "profiler.h"
+#include "test_utils.h"
 #include <execinfo.h>
 #include <math.h>
 
@@ -17,21 +18,7 @@ struct hash_table eer_scope = {
 };
 
 clock_t eer_cpu_total = 0;
-uint64_t eer_steps = 0;
-bool eer_stop = false;
-uint64_t eer_step() {
-  if (eer_stop) {
-    eer_dump_usage();
-  } else {
-    eer_steps += 1;
-    log_info("");
-    if (eer_steps == 0) {
-      return 1;
-    }
-  }
-  return !eer_stop;
-}
-void eer_signal_handler(int signal) { eer_stop = true; }
+void eer_signal_handler(int signal) { /* stop the event loop */ }
 
 unsigned int eer_frame_depth() {
   const unsigned int max_depth = 200;
@@ -51,12 +38,12 @@ unsigned int eer_frame_depth() {
     eer_dump_call(stage, some_call_counter);                                   \
   }
 
-bool eer_dump_usage() {
+void eer_dump_usage() {
   eer_t *component;
 
   printf("\n\nCPU usage details:\n\n");
   printf("operation\t\tsteps\tcpu\t%%\n\n");
-  printf("%d components\t\t%llu\t%lu\t100%%\n\n", eer_scope.used, eer_steps,
+  printf("%d components\t\t%llu\t%lu\t100%%\n\n", eer_scope.used, eer_current_iteration,
          eer_cpu_total);
   for (unsigned int index = 0; index < eer_scope.used; index++) {
     component = (eer_t *)eer_scope.data[index];
@@ -82,8 +69,6 @@ bool eer_dump_usage() {
   }
 
   log_clean();
-
-  return eer_stop;
 }
 
 const char *int_to_binary_str(int x, int N_bits) {

@@ -1,4 +1,5 @@
 #include "test_utils.h"
+#include "log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -6,7 +7,7 @@
 // Global hook registry
 eer_loop_hook_t eer_hooks[EER_MAX_HOOKS];
 int eer_hook_count = 0;
-int eer_current_iteration = 0;
+uint64_t eer_current_iteration = 0;
 
 // Initialize the hook system
 void eer_hooks_init(void) {
@@ -95,6 +96,7 @@ void eer_wait_for_iteration(int iteration) {
 // Increment the iteration counter and execute hooks
 void eer_increment_iteration(void) {
     eer_current_iteration++;
+    log_info("");
     eer_execute_hooks(EER_LOOP_AFTER_ITERATION);
 }
 

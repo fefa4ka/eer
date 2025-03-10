@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 
 // Loop event types
 typedef enum {
@@ -15,7 +16,7 @@ typedef void (*eer_loop_hook_fn)(void* data);
 // Loop hook structure
 typedef struct {
     eer_loop_event_t event;
-    int iteration;            // For AFTER_ITERATION events
+    uint64_t iteration;            // For AFTER_ITERATION events
     eer_loop_hook_fn hook;
     void* data;
     bool executed;
@@ -27,7 +28,7 @@ typedef struct {
 // Global hook registry
 extern eer_loop_hook_t eer_hooks[EER_MAX_HOOKS];
 extern int eer_hook_count;
-extern int eer_current_iteration;
+extern uint64_t eer_current_iteration;
 
 // Initialize the hook system
 void eer_hooks_init(void);

@@ -50,7 +50,6 @@
 #undef eer_loop
 #define eer_loop(...)                                                          \
   log_init();                                                                  \
-  eer_hooks_init();                                                            \
   eer_execute_hooks(EER_LOOP_BEFORE_START);                                    \
   eer_boot:                                                                    \
   eer_while(__VA_ARGS__)
@@ -58,7 +57,7 @@
 #undef eer_init
 #define eer_init(...)                                                          \
   log_init();                                                                  \
-  union eer_land eer_land;                                                     \
+  extern union eer_land eer_land;                                              \
   ;                                                                            \
   eer_land.flags = 0;                                                          \
   eer_boot:                                                                    \
@@ -84,7 +83,7 @@
 #endif
 
 #define test_program(before, after, ...)                                       \
-  union eer_land eer_land;                                                     \
+  union eer_land eer_land = {0};                                               \
   test_define(__VA_ARGS__);                                                    \
   void program();                                                              \
   void *__program(void *ptr) {                                                 \
@@ -97,6 +96,7 @@
     int program_thread_id;                                                     \
     int r;                                                                     \
     before;                                                                    \
+    eer_hooks_init();                                                          \
     pthread_create(&program_thread, NULL, __program,                           \
                    (void *)&program_thread_id);                                \
     test_execute(__VA_ARGS__);                                                 \

@@ -9,9 +9,8 @@ set(EER_FRAMEWORK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../")
 
 # Include EER framework headers
 include_directories(
-    ${EER_FRAMEWORK_PATH}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
+  ${EER_FRAMEWORK_PATH}/include ${EER_FRAMEWORK_PATH}/profiler
+  ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Add source files
 file(GLOB_RECURSE APP_SOURCES "src/*.c")
@@ -21,20 +20,28 @@ add_executable(${PROJECT_NAME} ${APP_SOURCES})
 
 # Link with EER framework
 add_library(eer STATIC IMPORTED)
-set_target_properties(eer PROPERTIES
-    IMPORTED_LOCATION "${EER_FRAMEWORK_PATH}/build/libeer.a"
-)
+set_target_properties(eer PROPERTIES IMPORTED_LOCATION
+                                     "${EER_FRAMEWORK_PATH}/build/libeer.a")
+
+if(PROFILING)
+  add_library(profiler STATIC IMPORTED)
+  set_target_properties(
+    profiler PROPERTIES IMPORTED_LOCATION
+                        "${EER_FRAMEWORK_PATH}/build/libprofiler.a")
+  target_link_libraries(${PROJECT_NAME} profiler)
+endif()
+
 target_link_libraries(${PROJECT_NAME} eer)
 
 # Optional: Enable testing
 option(ENABLE_TESTS "Enable tests" OFF)
 if(ENABLE_TESTS)
-    enable_testing()
-    file(GLOB_RECURSE TEST_SOURCES "test/*.c")
-    foreach(TEST_SOURCE ${TEST_SOURCES})
-        get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
-        add_executable(${TEST_NAME} ${TEST_SOURCE})
-        target_link_libraries(${TEST_NAME} eer)
-        add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
-    endforeach()
+  enable_testing()
+  file(GLOB_RECURSE TEST_SOURCES "test/*.c")
+  foreach(TEST_SOURCE ${TEST_SOURCES})
+    get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
+    add_executable(${TEST_NAME} ${TEST_SOURCE})
+    target_link_libraries(${TEST_NAME} eer)
+    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+  endforeach()
 endif()

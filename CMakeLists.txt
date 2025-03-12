@@ -8,7 +8,7 @@ set(EER_VERSION_MINOR 2)
 set(EER_VERSION_PATCH 0)
 set(EER_VERSION
     "${EER_VERSION_MAJOR}.${EER_VERSION_MINOR}.${EER_VERSION_PATCH}")
-option(PROFILING "Enable profiling" OFF)
+option(PROFILING "Enable profiler" OFF)
 option(ENABLE_TESTS "Enable building of tests" OFF)
 option(BUILD_EXAMPLES "Build example applications" ON)
 
@@ -30,11 +30,11 @@ set_property(TARGET eer PROPERTY C_STANDARD 99)
 
 if(PROFILING)
   message("Profiling enabled")
-  add_library(profiling STATIC profiler/profiler.c profiler/hash.c
+  add_library(profiler STATIC profiler/profiler.c profiler/hash.c
                                profiler/log.c profiler/test_utils.c)
-  target_include_directories(profiling PUBLIC profiler include)
-  target_link_libraries(eer profiling)
-  target_compile_definitions(profiling PUBLIC PROFILING)
+  target_include_directories(profiler PUBLIC profiler include)
+  target_link_libraries(eer profiler)
+  target_compile_definitions(profiler PUBLIC PROFILING)
 elseif(ENABLE_TESTS)
   add_library(logging STATIC profiler/log.c profiler/test_utils.c)
   target_include_directories(logging PUBLIC profiler)

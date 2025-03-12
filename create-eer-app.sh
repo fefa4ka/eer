@@ -175,7 +175,11 @@ if [ ! -z "$COMPONENT_NAME" ]; then
     cp "boilerplate/src/main.c" "$PROJECT_DIR/src/main.c"
     $SED -i "s/MyComponent/${COMPONENT_NAME}/g" "$PROJECT_DIR/src/main.c"
     $SED -i "s/my_component/${COMPONENT_NAME_LOWER}/g" "$PROJECT_DIR/src/main.c"
-    $SED -i "s/myComponent/${COMPONENT_NAME,,}/g" "$PROJECT_DIR/src/main.c"
+    
+    # Convert component name to lowercase for variable name
+    COMPONENT_NAME_VAR=$(echo "$COMPONENT_NAME" | tr '[:upper:]' '[:lower:]')
+    $SED -i "s/myComponent/${COMPONENT_NAME_VAR}/g" "$PROJECT_DIR/src/main.c"
+    
     $SED -i "s/Starting Application/Starting ${PROJECT_NAME} Application/g" "$PROJECT_DIR/src/main.c"
 
     # Create a test file for the component by copying the template and replacing the component name
@@ -195,6 +199,7 @@ else
     # If no custom component is specified, rename the default component files
     # to match the project name for better clarity
     PROJECT_NAME_LOWER=$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]')
+    PROJECT_NAME_VAR=$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]')
     
     if [ -f "$PROJECT_DIR/include/components/my_component.h" ]; then
         mkdir -p "$PROJECT_DIR/include/components"
@@ -215,7 +220,7 @@ else
     if [ -f "$PROJECT_DIR/src/main.c" ]; then
         $SED -i "s/my_component.h/${PROJECT_NAME_LOWER}_component.h/g" "$PROJECT_DIR/src/main.c"
         $SED -i "s/MyComponent/${PROJECT_NAME}Component/g" "$PROJECT_DIR/src/main.c"
-        $SED -i "s/myComponent/${PROJECT_NAME_LOWER}Component/g" "$PROJECT_DIR/src/main.c"
+        $SED -i "s/myComponent/${PROJECT_NAME_VAR}Component/g" "$PROJECT_DIR/src/main.c"
         $SED -i "s/Starting Application/Starting ${PROJECT_NAME} Application/g" "$PROJECT_DIR/src/main.c"
     fi
 fi

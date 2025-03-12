@@ -45,6 +45,34 @@
 /** @} */ // end of version group
 
 /* Component interaction macros */
+
+/**
+ * @brief Apply new props to a component (two-phase update)
+ * 
+ * The apply macro implements a two-phase update process:
+ * 
+ * First iteration:
+ * 1. Check if the component is in a valid state for updates (RELEASED or DEFINED)
+ * 2. Create a local copy of the new props
+ * 3. Call eer_staging with the new props, which:
+ *    - Calls should_update() to check if update is needed
+ *    - If yes, calls will_update() to prepare for the update
+ *    - Moves component to PREPARED state
+ * 
+ * Second iteration:
+ * 1. The component is in PREPARED state from previous iteration
+ * 2. The next eer_staging call (in the next loop iteration) will:
+ *    - Call release() to apply the changes
+ *    - Call did_update() to handle side effects
+ *    - Move component back to RELEASED state
+ * 
+ * This split approach creates a predictable, batched update pattern
+ * where all components prepare in one iteration and apply in the next.
+ * 
+ * @param Type The component type
+ * @param name The component instance
+ * @param propsValue The new props to apply
+ */
 #define eer_apply(Type, name, propsValue)                                      \
   if (EER_CONTEXT_UPDATED == eer_land.state.context &&                         \
       (EER_STAGE_RELEASED == name.instance.stage.state.step ||                 \
@@ -57,7 +85,29 @@
     eer_staging(&name.instance, 0);                                            \
   }
 
-/* Finalize previous step, and full cycle */
+/**
+ * @brief Force immediate update of a component (single-phase update)
+ * 
+ * The react macro implements an immediate, single-phase update process:
+ * 
+ * 1. Create a local copy of the new props
+ * 2. Call eer_staging with the current context to ensure component is ready
+ * 3. If component is not blocked:
+ *    a. Set component state to REACTING (special immediate update state)
+ *    b. Call eer_staging with the new props, which:
+ *       - Calls will_update() to prepare for the update
+ *       - Immediately calls release() to apply changes
+ *       - Immediately calls did_update() for side effects
+ *       - Moves component back to RELEASED state
+ * 
+ * This approach bypasses the normal two-phase update cycle and forces
+ * all lifecycle methods to execute immediately in a single iteration.
+ * Use this when immediate updates are required (e.g., user input).
+ * 
+ * @param Type The component type
+ * @param name The component instance
+ * @param propsValue The new props to apply immediately
+ */
 #define eer_react(Type, name, propsValue)                                      \
   {                                                                            \
     Type##_props_t next_props = propsValue;                                    \

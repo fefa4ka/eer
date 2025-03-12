@@ -6,9 +6,15 @@
  * This function is the heart of the EER framework's reactivity system.
  * It handles all transitions between component lifecycle states:
  * - DEFINED -> RELEASED (mounting)
- * - RELEASED -> PREPARED -> RELEASED (updating)
- * - REACTING -> PREPARED -> RELEASED (forced update)
+ * - RELEASED -> PREPARED -> RELEASED (updating via apply)
+ * - REACTING -> PREPARED -> RELEASED (forced update via react)
  * - UNMOUNTED -> BLOCKED (unmounting)
+ * 
+ * The key difference between apply() and react():
+ * - apply(): Calls eer_staging once, moving component to PREPARED state.
+ *            A second iteration is needed to complete the update.
+ * - react(): Sets state to REACTING, then calls eer_staging which completes
+ *            the entire update cycle in a single iteration.
  * 
  * @param instance Pointer to the component instance
  * @param next_props Either new props or a context flag

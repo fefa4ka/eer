@@ -351,7 +351,7 @@ To exit the loop completely, set `eer_land.state.unmounted = true` before callin
 ## Component Interaction
 
 ### `apply(Type, instance, props)`
-Apply new props to a component.
+Apply new props to a component in two loop iterations.
 
 ```c
 apply(MyComponent, myComponent, _({
@@ -360,7 +360,7 @@ apply(MyComponent, myComponent, _({
 ```
 
 ### `react(Type, instance, props)`
-Force a component to react to new props.
+Apply new props to a component in one loop iteration.
 
 ```c
 react(MyComponent, myComponent, _({

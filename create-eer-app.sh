@@ -145,94 +145,17 @@ EOF
 if [ ! -z "$COMPONENT_NAME" ]; then
     echo "Creating component: $COMPONENT_NAME"
     
-    # Create component header file
+    # Create component header file by copying the template and replacing the component name
     mkdir -p "$PROJECT_DIR/include/components"
     COMPONENT_NAME_LOWER=$(echo "$COMPONENT_NAME" | tr '[:upper:]' '[:lower:]')
-    cat > "$PROJECT_DIR/include/components/$COMPONENT_NAME_LOWER.h" << EOF
-/**
- * ${COMPONENT_NAME} Definition
- * 
- * This file defines a component with props and state.
- */
+    cp "boilerplate/include/components/my_component.h" "$PROJECT_DIR/include/components/$COMPONENT_NAME_LOWER.h"
+    $SED -i "s/MyComponent/${COMPONENT_NAME}/g" "$PROJECT_DIR/include/components/$COMPONENT_NAME_LOWER.h"
 
-#pragma once
-
-#include <eer.h>
-#include <eer_comp.h>
-#include <stdbool.h>
-#include <stdio.h>
-
-/* Define component props and state structures */
-typedef struct {
-    int value;
-    // Add your props here
-} ${COMPONENT_NAME}_props_t;
-
-typedef struct {
-    int value;
-    int update_count;
-    // Add your state here
-} ${COMPONENT_NAME}_state_t;
-
-/* Declare the component header */
-eer_header(${COMPONENT_NAME});
-EOF
-
-    # Create component implementation file
+    # Create component implementation file by copying the template and replacing the component name
     mkdir -p "$PROJECT_DIR/src/components"
-    cat > "$PROJECT_DIR/src/components/$COMPONENT_NAME_LOWER.c" << EOF
-/**
- * ${COMPONENT_NAME} Implementation
- * 
- * This file implements the lifecycle methods for ${COMPONENT_NAME}.
- */
-
-#include "components/${COMPONENT_NAME,,}.h"
-
-/* Implement lifecycle methods */
-
-// Called when component is first mounted
-WILL_MOUNT(${COMPONENT_NAME}) {
-    // Initialize state based on props
-    state->value = props->value;
-    state->update_count = 0;
-    printf("${COMPONENT_NAME} initialized with value: %d\\n", state->value);
-}
-
-// Determines if component should update
-SHOULD_UPDATE(${COMPONENT_NAME}) {
-    // Only update if value has changed
-    return props->value != next_props->value;
-}
-
-// Called before update
-WILL_UPDATE(${COMPONENT_NAME}) {
-    printf("${COMPONENT_NAME} preparing to update from %d to %d\\n", 
-           state->value, next_props->value);
-}
-
-// Main update function - apply props to state
-RELEASE(${COMPONENT_NAME}) {
-    state->value = props->value;
-    state->update_count++;
-}
-
-// Called after update
-DID_UPDATE(${COMPONENT_NAME}) {
-    printf("${COMPONENT_NAME} updated to value: %d (update count: %d)\\n",
-           state->value, state->update_count);
-}
-
-// Called after mount
-DID_MOUNT(${COMPONENT_NAME}) {
-    printf("${COMPONENT_NAME} mounted\\n");
-}
-
-// Called when unmounted
-DID_UNMOUNT(${COMPONENT_NAME}) {
-    printf("${COMPONENT_NAME} unmounted\\n");
-}
-EOF
+    cp "boilerplate/src/components/my_component.c" "$PROJECT_DIR/src/components/$COMPONENT_NAME_LOWER.c"
+    $SED -i "s/MyComponent/${COMPONENT_NAME}/g" "$PROJECT_DIR/src/components/$COMPONENT_NAME_LOWER.c"
+    $SED -i "s/my_component/${COMPONENT_NAME_LOWER}/g" "$PROJECT_DIR/src/components/$COMPONENT_NAME_LOWER.c"
 
     # Update main.c to use the new component
     cat > "$PROJECT_DIR/src/main.c" << EOF
@@ -279,46 +202,14 @@ int main() {
 }
 EOF
 
-    # Create a test file for the component
+    # Create a test file for the component by copying the template and replacing the component name
     mkdir -p "$PROJECT_DIR/test"
-    cat > "$PROJECT_DIR/test/${COMPONENT_NAME_LOWER}_test.c" << EOF
-/**
- * ${COMPONENT_NAME} Test
- * 
- * This file contains tests for the ${COMPONENT_NAME} component.
- */
-
-#include <stdio.h>
-#include <assert.h>
-#include <eer.h>
-#include <eer_app.h>
-#include "components/${COMPONENT_NAME_LOWER}.h"
-
-int main() {
-    printf("Running ${COMPONENT_NAME} tests\\n");
-    
-    // Create test component with initial value 10
-    eer_withprops(${COMPONENT_NAME}, test${COMPONENT_NAME}, _({.value = 10}));
-    
-    // Test initial state
-    assert(test${COMPONENT_NAME}.props.value == 10);
-    
-    // Start a test loop
-    loop(test${COMPONENT_NAME}) {
-        // Test updating the component
-        apply(${COMPONENT_NAME}, test${COMPONENT_NAME}, _({.value = 20}));
-        
-        // Verify the update
-        assert(test${COMPONENT_NAME}.props.value == 20);
-        
-        // Exit after verification
-        break;
-    }
-    
-    printf("All ${COMPONENT_NAME} tests passed!\\n");
-    return 0;
-}
-EOF
+    cp "boilerplate/test/my_component_test.c" "$PROJECT_DIR/test/${COMPONENT_NAME_LOWER}_test.c" 2>/dev/null || true
+    if [ -f "$PROJECT_DIR/test/${COMPONENT_NAME_LOWER}_test.c" ]; then
+        $SED -i "s/MyComponent/${COMPONENT_NAME}/g" "$PROJECT_DIR/test/${COMPONENT_NAME_LOWER}_test.c"
+        $SED -i "s/my_component/${COMPONENT_NAME_LOWER}/g" "$PROJECT_DIR/test/${COMPONENT_NAME_LOWER}_test.c"
+        $SED -i "s/testComponent/test${COMPONENT_NAME}/g" "$PROJECT_DIR/test/${COMPONENT_NAME_LOWER}_test.c"
+    fi
 
     # Remove the default MyComponent files if we're creating a custom component
     rm -f "$PROJECT_DIR/include/components/my_component.h"

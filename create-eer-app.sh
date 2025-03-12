@@ -147,7 +147,8 @@ if [ ! -z "$COMPONENT_NAME" ]; then
     
     # Create component header file
     mkdir -p "$PROJECT_DIR/include/components"
-    cat > "$PROJECT_DIR/include/components/${COMPONENT_NAME,,}.h" << EOF
+    COMPONENT_NAME_LOWER=$(echo "$COMPONENT_NAME" | tr '[:upper:]' '[:lower:]')
+    cat > "$PROJECT_DIR/include/components/$COMPONENT_NAME_LOWER.h" << EOF
 /**
  * ${COMPONENT_NAME} Definition
  * 
@@ -179,7 +180,7 @@ EOF
 
     # Create component implementation file
     mkdir -p "$PROJECT_DIR/src/components"
-    cat > "$PROJECT_DIR/src/components/${COMPONENT_NAME,,}.c" << EOF
+    cat > "$PROJECT_DIR/src/components/$COMPONENT_NAME_LOWER.c" << EOF
 /**
  * ${COMPONENT_NAME} Implementation
  * 
@@ -247,7 +248,7 @@ EOF
 #include <stdio.h>
 #include <unistd.h>
 
-#include "components/${COMPONENT_NAME,,}.h"
+#include "components/$COMPONENT_NAME_LOWER.h"
 
 int main() {
     printf("Starting ${PROJECT_NAME} Application\\n");
@@ -280,7 +281,7 @@ EOF
 
     # Create a test file for the component
     mkdir -p "$PROJECT_DIR/test"
-    cat > "$PROJECT_DIR/test/${COMPONENT_NAME,,}_test.c" << EOF
+    cat > "$PROJECT_DIR/test/${COMPONENT_NAME_LOWER}_test.c" << EOF
 /**
  * ${COMPONENT_NAME} Test
  * 
@@ -291,7 +292,7 @@ EOF
 #include <assert.h>
 #include <eer.h>
 #include <eer_app.h>
-#include "components/${COMPONENT_NAME,,}.h"
+#include "components/${COMPONENT_NAME_LOWER}.h"
 
 int main() {
     printf("Running ${COMPONENT_NAME} tests\\n");
@@ -326,23 +327,25 @@ EOF
 else
     # If no custom component is specified, rename the default component files
     # to match the project name for better clarity
+    PROJECT_NAME_LOWER=$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]')
+    
     if [ -f "$PROJECT_DIR/include/components/my_component.h" ]; then
         mkdir -p "$PROJECT_DIR/include/components"
-        $SED "s/MyComponent/${PROJECT_NAME}Component/g" "$PROJECT_DIR/include/components/my_component.h" > "$PROJECT_DIR/include/components/${PROJECT_NAME,,}_component.h"
+        $SED "s/MyComponent/${PROJECT_NAME}Component/g" "$PROJECT_DIR/include/components/my_component.h" > "$PROJECT_DIR/include/components/${PROJECT_NAME_LOWER}_component.h"
         rm "$PROJECT_DIR/include/components/my_component.h"
     fi
     
     if [ -f "$PROJECT_DIR/src/components/my_component.c" ]; then
         mkdir -p "$PROJECT_DIR/src/components"
-        $SED "s/MyComponent/${PROJECT_NAME}Component/g" "$PROJECT_DIR/src/components/my_component.c" > "$PROJECT_DIR/src/components/${PROJECT_NAME,,}_component.c"
+        $SED "s/MyComponent/${PROJECT_NAME}Component/g" "$PROJECT_DIR/src/components/my_component.c" > "$PROJECT_DIR/src/components/${PROJECT_NAME_LOWER}_component.c"
         rm "$PROJECT_DIR/src/components/my_component.c"
     fi
     
     # Update main.c to use the renamed component
     if [ -f "$PROJECT_DIR/src/main.c" ]; then
-        sed -i "s/my_component.h/${PROJECT_NAME,,}_component.h/g" "$PROJECT_DIR/src/main.c"
-        sed -i "s/MyComponent/${PROJECT_NAME}Component/g" "$PROJECT_DIR/src/main.c"
-        sed -i "s/myComponent/${PROJECT_NAME,,}Component/g" "$PROJECT_DIR/src/main.c"
+        $SED -i "s/my_component.h/${PROJECT_NAME_LOWER}_component.h/g" "$PROJECT_DIR/src/main.c"
+        $SED -i "s/MyComponent/${PROJECT_NAME}Component/g" "$PROJECT_DIR/src/main.c"
+        $SED -i "s/myComponent/${PROJECT_NAME_LOWER}Component/g" "$PROJECT_DIR/src/main.c"
     fi
 fi
 

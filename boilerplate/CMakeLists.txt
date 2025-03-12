@@ -7,6 +7,13 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 # Path to EER framework (adjust as needed)
 set(EER_FRAMEWORK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../")
 
+# Check if EER library exists
+set(EER_LIB_PATH "${EER_FRAMEWORK_PATH}/build/libeer.a")
+if(NOT EXISTS ${EER_LIB_PATH})
+  message(FATAL_ERROR "EER library not found at ${EER_LIB_PATH}. Please build the EER framework first:
+  mkdir -p ${EER_FRAMEWORK_PATH}/build && cd ${EER_FRAMEWORK_PATH}/build && cmake .. && make")
+endif()
+
 # Include EER framework headers
 include_directories(
   ${EER_FRAMEWORK_PATH}/include ${EER_FRAMEWORK_PATH}/profiler
@@ -20,14 +27,16 @@ add_executable(${PROJECT_NAME} ${APP_SOURCES})
 
 # Link with EER framework
 add_library(eer STATIC IMPORTED)
-set_target_properties(eer PROPERTIES IMPORTED_LOCATION
-                                     "${EER_FRAMEWORK_PATH}build/libeer.a")
+set_target_properties(eer PROPERTIES IMPORTED_LOCATION ${EER_LIB_PATH})
 
 if(PROFILING)
+  set(PROFILER_LIB_PATH "${EER_FRAMEWORK_PATH}/build/libprofiler.a")
+  if(NOT EXISTS ${PROFILER_LIB_PATH})
+    message(FATAL_ERROR "Profiler library not found at ${PROFILER_LIB_PATH}. Please build the EER framework with profiling enabled.")
+  endif()
+  
   add_library(profiler STATIC IMPORTED)
-  set_target_properties(
-    profiler PROPERTIES IMPORTED_LOCATION
-                        "${EER_FRAMEWORK_PATH}build/libprofiler.a")
+  set_target_properties(profiler PROPERTIES IMPORTED_LOCATION ${PROFILER_LIB_PATH})
   target_link_libraries(${PROJECT_NAME} profiler)
 endif()
 

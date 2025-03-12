@@ -3,6 +3,17 @@
 # EER Project Generator
 # This script generates a new EER project from the boilerplate
 
+# Check if EER library is built
+check_eer_library() {
+    local eer_lib_path="$1/build/libeer.a"
+    if [ ! -f "$eer_lib_path" ]; then
+        echo "Error: EER library not found at $eer_lib_path"
+        echo "Please build the EER framework first:"
+        echo "  mkdir -p $1/build && cd $1/build && cmake .. && make"
+        exit 1
+    fi
+}
+
 # Display help information
 show_help() {
     echo "EER Project Generator"
@@ -80,6 +91,9 @@ if [ ! -d "boilerplate" ]; then
     echo "Make sure you run this script from the EER framework root directory"
     exit 1
 fi
+
+# Check if EER library is built
+check_eer_library "$(pwd)"
 
 # Create project directory
 PROJECT_DIR="$PARENT_DIR/$PROJECT_NAME"

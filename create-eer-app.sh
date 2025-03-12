@@ -9,7 +9,7 @@ check_eer_library() {
     if [ ! -f "$eer_lib_path" ]; then
         echo "Error: EER library not found at $eer_lib_path"
         echo "Please build the EER framework first:"
-        echo "  mkdir -p $1/build && cd $1/build && cmake .. && make"
+        echo "  mkdir -p ./build && cd ./build && cmake .. && make"
         exit 1
     fi
 }

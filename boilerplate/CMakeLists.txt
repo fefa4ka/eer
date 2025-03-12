@@ -21,13 +21,13 @@ add_executable(${PROJECT_NAME} ${APP_SOURCES})
 # Link with EER framework
 add_library(eer STATIC IMPORTED)
 set_target_properties(eer PROPERTIES IMPORTED_LOCATION
-                                     "${EER_FRAMEWORK_PATH}/build/libeer.a")
+                                     "${EER_FRAMEWORK_PATH}build/libeer.a")
 
 if(PROFILING)
   add_library(profiler STATIC IMPORTED)
   set_target_properties(
     profiler PROPERTIES IMPORTED_LOCATION
-                        "${EER_FRAMEWORK_PATH}/build/libprofiler.a")
+                        "${EER_FRAMEWORK_PATH}build/libprofiler.a")
   target_link_libraries(${PROJECT_NAME} profiler)
 endif()
 

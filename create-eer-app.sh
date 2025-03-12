@@ -337,7 +337,10 @@ else
     
     if [ -f "$PROJECT_DIR/src/components/my_component.c" ]; then
         mkdir -p "$PROJECT_DIR/src/components"
+        # First replace the component name
         $SED "s/MyComponent/${PROJECT_NAME}Component/g" "$PROJECT_DIR/src/components/my_component.c" > "$PROJECT_DIR/src/components/${PROJECT_NAME_LOWER}_component.c"
+        # Then update the include path in the new file
+        $SED -i "s|\"components/my_component.h\"|\"components/${PROJECT_NAME_LOWER}_component.h\"|g" "$PROJECT_DIR/src/components/${PROJECT_NAME_LOWER}_component.c"
         rm "$PROJECT_DIR/src/components/my_component.c"
     fi
     

@@ -157,50 +157,12 @@ if [ ! -z "$COMPONENT_NAME" ]; then
     $SED -i "s/MyComponent/${COMPONENT_NAME}/g" "$PROJECT_DIR/src/components/$COMPONENT_NAME_LOWER.c"
     $SED -i "s/my_component/${COMPONENT_NAME_LOWER}/g" "$PROJECT_DIR/src/components/$COMPONENT_NAME_LOWER.c"
 
-    # Update main.c to use the new component
-    cat > "$PROJECT_DIR/src/main.c" << EOF
-/**
- * Main Application File
- * 
- * This is the entry point for your EER application.
- */
-
-#include <eer.h>
-#include <eer_app.h>
-#include <eer_comp.h>
-#include <stdio.h>
-#include <unistd.h>
-
-#include "components/$COMPONENT_NAME_LOWER.h"
-
-int main() {
-    printf("Starting ${PROJECT_NAME} Application\\n");
-
-    // Create component instances
-    eer_withprops(${COMPONENT_NAME}, ${COMPONENT_NAME,,}, _({.value = 1}));
-
-    // Start the event loop
-    loop(${COMPONENT_NAME,,}) {
-        // Update the component value
-        apply(${COMPONENT_NAME}, ${COMPONENT_NAME,,},
-              _({.value = ${COMPONENT_NAME,,}.state.value + 1}));
-
-        // Add your application logic here
-        
-        // Sleep to slow down the loop (remove in production)
-        usleep(500000);  // 500ms
-
-        // Exit condition
-        if (${COMPONENT_NAME,,}.state.update_count >= 5) {
-            printf("Application shutting down\\n");
-            eer_land.state.unmounted = true;
-        }
-    }
-
-    printf("Application Completed\\n");
-    return 0;
-}
-EOF
+    # Create main.c by copying the template and replacing the component name
+    cp "boilerplate/src/main.c" "$PROJECT_DIR/src/main.c"
+    $SED -i "s/MyComponent/${COMPONENT_NAME}/g" "$PROJECT_DIR/src/main.c"
+    $SED -i "s/my_component/${COMPONENT_NAME_LOWER}/g" "$PROJECT_DIR/src/main.c"
+    $SED -i "s/myComponent/${COMPONENT_NAME,,}/g" "$PROJECT_DIR/src/main.c"
+    $SED -i "s/Starting Application/Starting ${PROJECT_NAME} Application/g" "$PROJECT_DIR/src/main.c"
 
     # Create a test file for the component by copying the template and replacing the component name
     mkdir -p "$PROJECT_DIR/test"
@@ -235,11 +197,12 @@ else
         rm "$PROJECT_DIR/src/components/my_component.c"
     fi
     
-    # Update main.c to use the renamed component
+    # Create main.c by copying the template and replacing the component name
     if [ -f "$PROJECT_DIR/src/main.c" ]; then
         $SED -i "s/my_component.h/${PROJECT_NAME_LOWER}_component.h/g" "$PROJECT_DIR/src/main.c"
         $SED -i "s/MyComponent/${PROJECT_NAME}Component/g" "$PROJECT_DIR/src/main.c"
         $SED -i "s/myComponent/${PROJECT_NAME_LOWER}Component/g" "$PROJECT_DIR/src/main.c"
+        $SED -i "s/Starting Application/Starting ${PROJECT_NAME} Application/g" "$PROJECT_DIR/src/main.c"
     fi
 fi
 

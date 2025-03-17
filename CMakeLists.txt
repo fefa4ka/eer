@@ -10,7 +10,7 @@ set(EER_VERSION
     "${EER_VERSION_MAJOR}.${EER_VERSION_MINOR}.${EER_VERSION_PATCH}")
 option(PROFILING "Enable profiler" OFF)
 option(ENABLE_TESTS "Enable building of tests" OFF)
-option(BUILD_EXAMPLES "Build example applications" ON)
+option(BUILD_EXAMPLES "Build example applications" OFF)
 
 # Configuration options
 option(PLATFORM "Target platform (simulation or native)" simulation)
